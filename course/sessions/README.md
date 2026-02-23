@@ -9,7 +9,7 @@
 | `sessions/01-setup/demo/` | 1 | Установка и первые задачи |
 | `sessions/02-context-skills/demo/` | 2 | Контекст и навыки |
 | `sessions/03-mcp/demo/` | 3 | Внешние сервисы (MCP) |
-| `sessions/04-agents/demo/` | 4 | Агенты и подагенты |
+| `sessions/04-agents/demo/` | 4 | Агенты и субагенты |
 | `sessions/05-agent-teams/demo/` | 5 | Команды агентов |
 
 ## Как начать
