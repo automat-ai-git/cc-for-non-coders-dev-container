@@ -30,6 +30,8 @@ services:
     
     volumes:
       - student-data:/home/coder/course
+      # чтобы json подгружался при старте, якобы тогда его можно менять на лету
+      - ./claude-settings.json:/home/coder/.claude/settings.json
     
     networks:
       - localai_default
