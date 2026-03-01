@@ -37,7 +37,7 @@ Docker-контейнер для курса «Claude Code: суперсила д
 ### 1. Клонировать и настроить
 
 ```bash
-git clone git@github.com:miolamio/cc-for-non-coders-dev-container.git
+git clone https://github.com/automat-ai-git/cc-for-non-coders-dev-container.git
 cd cc-for-non-coders-dev-container
 cp .env.example .env
 ```
