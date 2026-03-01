@@ -3,14 +3,17 @@
 # Запуск:  ./run.sh
 # Или:     docker compose up --build
 #
-# Портал: http://localhost:8080  (пароль из .env)
+# Портал: http://localhost:8989  (пароль из .env)
 
 services:
   student:
     build: .
-    container_name: claude-course-test
+    container_name: claude-code
     environment:
+      # Пароль для входа (из .env или дефолт)
       - PASSWORD=${PASSWORD:-student-2026}
+      
+      # Настройки Anthropic API (проксируются через z.ai)
       - ANTHROPIC_AUTH_TOKEN=${GLM_API_KEY:-}
       - ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic
       - ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5}
@@ -18,16 +21,27 @@ services:
       - ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
       - API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
       - ANTHROPIC_AUTH_TOKEN_BACKUP=${GLM_API_KEY_BACKUP:-}
+      
+      # Системные пути
+      - NODE_PATH=/usr/lib/node_modules
+    
     ports:
-      - "8080:8080"
+      - "8989:8080" # Внешний порт 8989, внутренний 8080
+    
     volumes:
       - student-data:/home/coder/course
+    
+    networks:
+      - localai_default
+    
     deploy:
       resources:
         limits:
           cpus: "2.0"
           memory: 4G
+          
     restart: unless-stopped
+    
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
@@ -36,3 +50,7 @@ services:
 
 volumes:
   student-data:
+
+networks:
+  localai_default:
+    external: true
