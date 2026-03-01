@@ -30,8 +30,8 @@ services:
     
     volumes:
       - student-data:/home/coder/course
-      # чтобы json подгружался при старте, якобы тогда его можно менять на лету
-      - ./claude-settings.json:/home/coder/.claude/settings.json
+      # чтобы json подгружался при старте, якобы тогда его можно менять на лету. Но пока закомментил, т.к. надо папку, а не файл - т.е. надо правильнее делать
+      #- ./claude-settings.json:/home/coder/.claude/settings.json
     
     networks:
       - localai_default
