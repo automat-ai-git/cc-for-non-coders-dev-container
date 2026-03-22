@@ -30,20 +30,14 @@ API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
 
 # Настройка Plane MCP (если задан API ключ)
+# Используем claude mcp add --scope user (settings.json mcpServers игнорируется Claude Code)
 if [ -n "${PLANE_API_KEY:-}" ]; then
-    SETTINGS="/home/coder/.claude/settings.json"
-    jq --arg key "${PLANE_API_KEY}" \
-       --arg slug "${PLANE_WORKSPACE_SLUG:-}" \
-       --arg base "${PLANE_BASE_URL:-}" \
-       '.mcpServers.plane = {
-           "command": "uvx",
-           "args": ["plane-mcp-server", "stdio"],
-           "env": {
-               "PLANE_API_KEY": $key,
-               "PLANE_WORKSPACE_SLUG": $slug,
-               "PLANE_BASE_URL": $base
-           }
-       }' "$SETTINGS" > /tmp/settings.tmp && mv /tmp/settings.tmp "$SETTINGS"
+    claude mcp add plane \
+        --scope user \
+        -e PLANE_API_KEY="${PLANE_API_KEY}" \
+        -e PLANE_WORKSPACE_SLUG="${PLANE_WORKSPACE_SLUG:-}" \
+        -e PLANE_BASE_URL="${PLANE_BASE_URL:-}" \
+        -- uvx plane-mcp-server stdio 2>/dev/null || true
     echo "✓ Plane MCP configured (workspace: ${PLANE_WORKSPACE_SLUG})"
 fi
 
