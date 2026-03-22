@@ -1,5 +1,18 @@
-# Environment (may contain API keys)
+# Секреты — никогда не коммитить
 .env
+*.env
+!.env.example
+
+# Docker override
+docker-compose.override.yml
 
 # macOS
 .DS_Store
+
+# Windows
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
