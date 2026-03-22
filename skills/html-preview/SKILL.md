@@ -72,48 +72,34 @@ tmux kill-session -t preview-server 2>/dev/null || true
 pkill -f "http.server 5500" || true
 ```
 
-## Исправление путей к Chart.js и другим ассетам
+## Chart.js и внешние библиотеки
 
-Chart.js и другие ассеты курса лежат в `/home/coder/course/assets/`.
+**Правило:** всегда используй CDN. Контейнер имеет доступ в интернет, и CDN работает как в контейнере, так и при открытии файла локально на компьютере студента.
 
-**Проблема:** HTML-файлы иногда ссылаются на CDN (`cdn.jsdelivr.net`) или используют абсолютный путь `/assets/...`. Ни то, ни другое не работает внутри контейнера.
-
-**Правило:** всегда используй **относительный путь** от HTML-файла до папки `assets/`.
-
-Для файла на глубине 4 уровня (`sessions/NN/demo/project/file.html`):
 ```html
-<!-- НЕПРАВИЛЬНО — CDN недоступен -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<!-- ПРАВИЛЬНО — CDN работает везде -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-<!-- НЕПРАВИЛЬНО — абсолютный путь ведёт на корень домена, а не курса -->
+<!-- НЕПРАВИЛЬНО — абсолютный путь ведёт на корень домена -->
 <script src="/assets/chart.min.js"></script>
 
-<!-- ПРАВИЛЬНО — относительный путь -->
+<!-- НЕПРАВИЛЬНО — относительный путь ломается при скачивании файла -->
 <script src="../../../../assets/chart.min.js"></script>
 ```
 
-Формула подсчёта `../`: считай, сколько папок между HTML-файлом и `course/`, и столько раз пиши `../`.
-
-### Автоисправление через sed
-
-Если нужно заменить CDN на локальный файл:
+Если в файле уже стоит неправильный путь — исправь через sed:
 ```bash
-HTML_FILE="/home/coder/course/sessions/01-setup/demo/financial-dashboard/dashboard.html"
-sed -i 's|https://cdn.jsdelivr.net/npm/chart.js[^"]*|../../../../assets/chart.min.js|g' "$HTML_FILE"
-```
-
-Проверь результат:
-```bash
-grep -n "chart" "$HTML_FILE"
+HTML_FILE="/path/to/dashboard.html"
+sed -i 's|src="[^"]*chart[^"]*"|src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"|g' "$HTML_FILE"
 ```
 
 ## Типичные ошибки в консоли браузера
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
-| `404 chart.min.js` | Неправильный путь к Chart.js | Исправь путь на относительный `../../../../assets/chart.min.js` |
-| `Cannot read properties of null (reading 'appendChild')` | Chart.js не загрузился | Следствие ошибки выше, исправь путь |
-| `Unexpected token '<'` | JS-файл вернул HTML-страницу 404 | Тот же путь — сервер вернул страницу ошибки вместо файла |
+| `404 chart.min.js` | Неправильный путь к Chart.js | Замени на CDN: `cdn.jsdelivr.net/npm/chart.js@4.4.1/...` |
+| `Cannot read properties of null (reading 'appendChild')` | Chart.js не загрузился | Следствие ошибки выше, исправь путь к Chart.js |
+| `Unexpected token '<'` | JS-файл вернул HTML-страницу 404 | Сервер вернул страницу ошибки вместо файла — исправь путь |
 | `SyntaxError: missing ) after argument list` | Ошибка в самом HTML/JS файле | Найди и исправь синтаксическую ошибку в файле |
 
 ## Важно
