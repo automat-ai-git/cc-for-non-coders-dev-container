@@ -1,6 +1,5 @@
 FROM ubuntu:22.04
 
-ARG CODE_SERVER_VERSION=4.112.0
 ARG NODE_VERSION=22
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,8 +41,8 @@ RUN mkdir -p /etc/apt/keyrings \
     && apt-get update && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# code-server (VS Code in browser)
-RUN curl -fsSL https://code-server.dev/install.sh | sh -s -- --version=${CODE_SERVER_VERSION}
+# code-server (VS Code in browser) — always latest stable
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # File Browser — lightweight web file manager for demos
 RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
