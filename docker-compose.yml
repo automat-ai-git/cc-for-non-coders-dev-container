@@ -24,6 +24,11 @@ services:
       
       # Системные пути
       - NODE_PATH=/usr/lib/node_modules
+
+      # Plane MCP (опционально — для интеграции с Plane)
+      - PLANE_API_KEY=${PLANE_API_KEY:-}
+      - PLANE_WORKSPACE_SLUG=${PLANE_WORKSPACE_SLUG:-}
+      - PLANE_BASE_URL=${PLANE_BASE_URL:-}
     
     ports:
       - "8989:8080" # Внешний порт 8989, внутренний 8080

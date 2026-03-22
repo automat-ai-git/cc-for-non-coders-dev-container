@@ -29,6 +29,24 @@ ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-GLM-4.5-Air}
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
 
+# Настройка Plane MCP (если задан API ключ)
+if [ -n "${PLANE_API_KEY:-}" ]; then
+    SETTINGS="/home/coder/.claude/settings.json"
+    jq --arg key "${PLANE_API_KEY}" \
+       --arg slug "${PLANE_WORKSPACE_SLUG:-}" \
+       --arg base "${PLANE_BASE_URL:-}" \
+       '.mcpServers.plane = {
+           "command": "uvx",
+           "args": ["plane-mcp-server", "stdio"],
+           "env": {
+               "PLANE_API_KEY": $key,
+               "PLANE_WORKSPACE_SLUG": $slug,
+               "PLANE_BASE_URL": $base
+           }
+       }' "$SETTINGS" > /tmp/settings.tmp && mv /tmp/settings.tmp "$SETTINGS"
+    echo "✓ Plane MCP configured (workspace: ${PLANE_WORKSPACE_SLUG})"
+fi
+
 # Helper script to switch API keys (writes to .claude/.env so Claude Code picks it up)
 cat > /home/coder/switch-api-key.sh << 'SWITCH'
 #!/usr/bin/env bash

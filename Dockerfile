@@ -80,6 +80,11 @@ RUN pip3 install --no-cache-dir \
     defusedxml \
     PyYAML
 
+# uv / uvx — Python package runner для MCP серверов (plane-mcp-server и др.)
+RUN curl -LsSf https://astral.sh/uv/install.sh | env HOME=/root sh \
+    && ln -sf /root/.local/bin/uv /usr/local/bin/uv \
+    && ln -sf /root/.local/bin/uvx /usr/local/bin/uvx
+
 # Create user
 RUN useradd -m -s /bin/bash -G sudo coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/coder
@@ -146,6 +151,9 @@ RUN mkdir -p /home/coder/course/assets \
 
 # Pre-cache MCP packages (avoid 25-50 students downloading simultaneously)
 RUN npx -y @anthropic-ai/mcp-server-filesystem --help 2>/dev/null || true
+
+# Pre-cache Plane MCP server
+RUN uvx plane-mcp-server --help 2>/dev/null || true
 
 # Port 8080 = auth gateway (single entry point)
 EXPOSE 8080
