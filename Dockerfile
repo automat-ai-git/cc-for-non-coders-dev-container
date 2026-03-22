@@ -80,9 +80,9 @@ RUN pip3 install --no-cache-dir \
     PyYAML
 
 # uv / uvx — Python package runner для MCP серверов (plane-mcp-server и др.)
-RUN curl -LsSf https://astral.sh/uv/install.sh | env HOME=/root sh \
-    && ln -sf /root/.local/bin/uv /usr/local/bin/uv \
-    && ln -sf /root/.local/bin/uvx /usr/local/bin/uvx
+# UV_INSTALL_DIR=/usr/local/bin устанавливает бинарники напрямую, минуя /root/.local/
+# (иначе симлинк /usr/local/bin/uvx -> /root/.local/bin/uvx недоступен для coder из-за прав 700 на /root/)
+RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh
 
 # Create user
 RUN useradd -m -s /bin/bash -G sudo coder \
