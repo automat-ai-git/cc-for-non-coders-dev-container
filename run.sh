@@ -3,7 +3,7 @@
 # run.sh — Собрать и запустить контейнер локально
 #
 # После запуска:
-#   Портал: http://localhost:8080  (пароль из .env)
+#   Портал: http://localhost:8989  (пароль из .env)
 #
 # Остановка:  docker compose down
 # С удалением данных:  docker compose down -v
@@ -27,7 +27,7 @@ docker compose -f "$SCRIPT_DIR/docker-compose.yml" up -d
 echo ""
 echo "=== Готово! ==="
 echo ""
-echo "  Портал:       http://localhost:8080  (пароль из .env)"
+echo "  Портал:       http://localhost:8989  (пароль из .env)"
 echo "  Пароль:       $(grep '^PASSWORD=' "$SCRIPT_DIR/.env" 2>/dev/null | cut -d= -f2 || echo 'test123')"
 echo ""
 echo "  Остановка:            docker compose down"
