@@ -22,6 +22,9 @@ services:
       - "8989:8080"
     volumes:
       - student-data:/home/coder/course
+    networks:
+      - default
+      - localai_default
     deploy:
       resources:
         limits:
@@ -36,3 +39,7 @@ services:
 
 volumes:
   student-data:
+
+networks:
+  localai_default:
+    external: true
