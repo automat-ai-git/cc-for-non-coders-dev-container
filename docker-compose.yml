@@ -23,8 +23,8 @@ services:
     volumes:
       - student-data:/home/coder/course
     networks:
-      - default
       - localai_default
+      - mtu1420
     deploy:
       resources:
         limits:
@@ -43,3 +43,7 @@ volumes:
 networks:
   localai_default:
     external: true
+  mtu1420:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: "1420"
