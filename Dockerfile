@@ -84,6 +84,9 @@ RUN pip3 install --no-cache-dir \
 # (иначе симлинк /usr/local/bin/uvx -> /root/.local/bin/uvx недоступен для coder из-за прав 700 на /root/)
 RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh
 
+# symlink code -> code-server (needed for Claude Code IDE extension install)
+RUN ln -sf /usr/bin/code-server /usr/local/bin/code
+
 # Create user
 RUN useradd -m -s /bin/bash -G sudo coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/coder
@@ -162,8 +165,8 @@ ENV NODE_PATH="/usr/lib/node_modules"
 ENV PASSWORD=""
 ENV ANTHROPIC_AUTH_TOKEN=""
 ENV ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
-ENV ANTHROPIC_DEFAULT_OPUS_MODEL="GLM-5"
-ENV ANTHROPIC_DEFAULT_SONNET_MODEL="GLM-5"
+ENV ANTHROPIC_DEFAULT_OPUS_MODEL="GLM-5.1"
+ENV ANTHROPIC_DEFAULT_SONNET_MODEL="GLM-5.1"
 ENV ANTHROPIC_DEFAULT_HAIKU_MODEL="GLM-4.5-Air"
 ENV API_TIMEOUT_MS="3000000"
 ENV ANTHROPIC_AUTH_TOKEN_BACKUP=""
