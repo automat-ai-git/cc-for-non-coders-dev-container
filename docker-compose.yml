@@ -14,22 +14,24 @@ services:
       - ANTHROPIC_AUTH_TOKEN=${GLM_API_KEY:-}
       - ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic
       - ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
-      - ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
+      - ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-5.1}
       - ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
       - API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
       - ANTHROPIC_AUTH_TOKEN_BACKUP=${GLM_API_KEY_BACKUP:-}
+      - PLANE_API_KEY=${PLANE_API_KEY:-}
+      - PLANE_WORKSPACE_SLUG=${PLANE_WORKSPACE_SLUG:-}
+      - PLANE_BASE_URL=${PLANE_BASE_URL:-}
     ports:
       - "8989:8080"
     volumes:
       - student-data:/home/coder/course
     networks:
       - localai_default
-      - mtu1420
     deploy:
       resources:
         limits:
-          cpus: "2.0"
-          memory: 4G
+          cpus: "8.0"
+          memory: 16G
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
@@ -43,7 +45,3 @@ volumes:
 networks:
   localai_default:
     external: true
-  mtu1420:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: "1420"
