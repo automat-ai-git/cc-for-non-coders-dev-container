@@ -43,7 +43,7 @@ if [ -n "${PLANE_API_KEY:-}" ]; then
 fi
 
 # Helper script to switch provider and API key
-cat > /home/coder/switch-api-key.sh << SWITCH
+cat > /home/coder/switch-api-key.sh << 'SWITCH'
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
 
