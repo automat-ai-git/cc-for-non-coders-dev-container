@@ -84,9 +84,6 @@ RUN pip3 install --no-cache-dir \
 # (иначе симлинк /usr/local/bin/uvx -> /root/.local/bin/uvx недоступен для coder из-за прав 700 на /root/)
 RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh
 
-# symlink code -> code-server (Claude Code calls `code --install-extension`)
-RUN ln -sf /usr/bin/code-server /usr/local/bin/code
-
 # Create user
 RUN useradd -m -s /bin/bash -G sudo coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/coder
