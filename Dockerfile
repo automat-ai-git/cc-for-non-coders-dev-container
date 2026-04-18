@@ -106,15 +106,6 @@ RUN code-server --install-extension ms-vscode.live-server \
     && code-server --install-extension hediet.vscode-drawio \
     || true
 
-# Claude Code IDE extension (not on OpenVSX — download VSIX from VS Code marketplace)
-RUN curl -fsSL \
-        -H "Accept: application/octet-stream" \
-        "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Anthropic/vsextensions/claude-code/latest/vspackage" \
-        -o /tmp/claude-code.vsix \
-    && code-server --install-extension /tmp/claude-code.vsix \
-    && rm /tmp/claude-code.vsix \
-    || true
-
 # Playwright: install Chromium browser + system deps
 RUN playwright install --with-deps chromium
 
