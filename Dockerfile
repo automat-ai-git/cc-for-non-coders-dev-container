@@ -101,7 +101,7 @@ RUN git config --global user.name "Course Student" \
 
 # VS Code extensions: preview HTML, PDF, Excel, images inside the editor
 RUN code-server --install-extension ms-vscode.live-server \
-    && code-server --install-extension tomoki1207.pdf \
+    && code-server --install-extension analytic-signal.preview-pdf \
     && code-server --install-extension GrapeCity.gc-excelviewer \
     && code-server --install-extension hediet.vscode-drawio \
     || true
