@@ -19,6 +19,7 @@
       "Bash(git:*)",
       "Bash(echo:*)",
       "Bash(cd:*)",
+      "Bash(docker:*)",
       "Read",
       "Edit",
       "Write",
@@ -30,7 +31,9 @@
       "Bash(rm -rf /)",
       "Bash(sudo:*)",
       "Bash(chmod 777:*)",
-      "Bash(curl:*)|Bash(wget:*)"
+      "Bash(curl:*)|Bash(wget:*)",
+      "Bash(docker run --privileged:*)",
+      "Bash(docker run *--privileged*:*)"
     ]
   },
   "env": {

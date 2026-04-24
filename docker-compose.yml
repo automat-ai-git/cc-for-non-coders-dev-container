@@ -25,6 +25,8 @@ services:
       - "8989:8080"
     volumes:
       - student-data:/home/coder/course
+      - /home/your-user/workspace:/home/coder/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - localai_default
     deploy:

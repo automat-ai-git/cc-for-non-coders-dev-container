@@ -88,7 +88,9 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin s
 RUN ln -sf /usr/bin/code-server /usr/local/bin/code
 
 # Create user
-RUN useradd -m -s /bin/bash -G sudo coder \
+# docker GID 1001 matches host — gives coder access to docker.sock without root
+RUN groupadd -g 1001 docker && \
+    useradd -m -s /bin/bash -G sudo,docker coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/coder
 
 USER coder
