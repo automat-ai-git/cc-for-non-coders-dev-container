@@ -13,9 +13,9 @@ services:
       - PASSWORD=${PASSWORD:-student-2026}
       - ANTHROPIC_AUTH_TOKEN=${GLM_API_KEY:-}
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
-      - ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
-      - ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-zai-cloud}
-      - ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
+      - GLM_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
+      - GLM_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
+      - GLM_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
       - API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
       - ANTHROPIC_AUTH_TOKEN_BACKUP=${GLM_API_KEY_BACKUP:-}
       - PLANE_API_KEY=${PLANE_API_KEY:-}
@@ -27,6 +27,8 @@ services:
       - student-data:/home/coder/course
       - /home/your-user/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - localai_default
     deploy:

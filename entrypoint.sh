@@ -19,13 +19,14 @@ if [ -d /home/coder/.course-image ] && [ ! -f /home/coder/course/.initialized ];
 fi
 
 # Write Claude Code env config with the active API key
+# Модели берём из GLM_*_MODEL (не из ANTHROPIC_DEFAULT_*_MODEL — те не передаются в контейнер)
 mkdir -p /home/coder/.claude
 cat > /home/coder/.claude/.env << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
 ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
-ANTHROPIC_DEFAULT_OPUS_MODEL=${ANTHROPIC_DEFAULT_OPUS_MODEL:-GLM-5.1}
-ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL:-zai-cloud}
-ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-GLM-4.5-Air}
+ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
+ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
 
@@ -66,9 +67,9 @@ chmod +x /home/coder/switch-api-key.sh
 
 # Helper script to switch model (cloud vs local)
 # Оригинальные GLM-имена запекаются в скрипт в момент старта контейнера
-_CLOUD_OPUS="${ANTHROPIC_DEFAULT_OPUS_MODEL:-GLM-5.1}"
-_CLOUD_SONNET="${ANTHROPIC_DEFAULT_SONNET_MODEL:-GLM-4.7}"
-_CLOUD_HAIKU="${ANTHROPIC_DEFAULT_HAIKU_MODEL:-GLM-4.5-Air}"
+_CLOUD_OPUS="${GLM_OPUS_MODEL:-GLM-5.1}"
+_CLOUD_SONNET="${GLM_SONNET_MODEL:-GLM-4.7}"
+_CLOUD_HAIKU="${GLM_HAIKU_MODEL:-GLM-4.5-Air}"
 
 cat > /home/coder/switch-model.sh << SWITCH
 #!/usr/bin/env bash
@@ -83,14 +84,14 @@ case "\${1:-}" in
     echo "  Opus   → ${_CLOUD_OPUS}"
     echo "  Sonnet → ${_CLOUD_SONNET}"
     echo "  Haiku  → ${_CLOUD_HAIKU}"
-    echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
+    echo "Apply: source ~/.claude/.env && claude"
     ;;
   local)
     sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=ollama-local|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama-local|" "\$ENV_FILE"
     echo "Switched to LOCAL: Ollama (модель задана в LiteLLM конфиге)"
-    echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
+    echo "Apply: source ~/.claude/.env && claude"
     ;;
   *)
     echo "Usage: ./switch-model.sh [cloud|local]"
@@ -101,6 +102,17 @@ case "\${1:-}" in
 esac
 SWITCH
 chmod +x /home/coder/switch-model.sh
+
+# Загружаем .claude/.env в каждом терминале как переменные окружения
+# Это позволяет switch-model.sh работать: файл → export → process env → Claude Code
+# set -a автоматически экспортирует все переменные из файла
+cat >> /home/coder/.bashrc << 'ENVLOAD'
+
+# Загрузка конфига Claude Code (модели, ключ, BASE_URL)
+set -a
+[ -f /home/coder/.claude/.env ] && source /home/coder/.claude/.env
+set +a
+ENVLOAD
 
 # Welcome banner in terminal
 cat >> /home/coder/.bashrc << 'BANNER'
@@ -113,6 +125,7 @@ echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh [primary|backup]\033[0m"
 echo -e "  Переключить модель:     \033[0;33m~/switch-model.sh [cloud|local]\033[0m"
+echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
 BANNER
 
@@ -121,7 +134,13 @@ FB_DB="/home/coder/.config/filebrowser/filebrowser.db"
 filebrowser --database "$FB_DB" > /tmp/filebrowser.log 2>&1 &
 
 # Start code-server in background (internal, no auth — gateway handles auth)
-code-server \
+# Убираем ANTHROPIC_DEFAULT_*_MODEL из окружения code-server, чтобы Claude Code
+# читал модели только из .claude/.env — иначе process env перебивает файл
+# и switch-model.sh не работает (Node.js dotenv не перезаписывает уже заданные переменные)
+env -u ANTHROPIC_DEFAULT_OPUS_MODEL \
+    -u ANTHROPIC_DEFAULT_SONNET_MODEL \
+    -u ANTHROPIC_DEFAULT_HAIKU_MODEL \
+    code-server \
     --bind-addr 127.0.0.1:8081 \
     --auth none \
     --disable-telemetry \

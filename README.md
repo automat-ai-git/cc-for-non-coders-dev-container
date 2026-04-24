@@ -96,17 +96,24 @@ docker compose logs -f
 
 ```bash
 # Внутри контейнера (в терминале code-server):
-~/switch-model.sh cloud   # облако:  zai-cloud    → Z.AI / GLM-5.1
+~/switch-model.sh cloud   # облако:  GLM-модели → Z.AI
 ~/switch-model.sh local   # локально: ollama-local → Ollama (модель в LiteLLM конфиге)
 ~/switch-model.sh         # показать текущую модель
 ```
 
-После переключения перезапустите Claude Code (`Ctrl+C`, затем `claude`).
+После переключения применить в текущем терминале и запустить Claude Code:
 
-Оба режима требуют запущенного LiteLLM в той же сети — он знает куда роутить каждое название. В `.env` должна быть прописана переменная:
-```env
-ANTHROPIC_BASE_URL=http://litellm:4000
+```bash
+source ~/.claude/.env && claude
 ```
+
+> **Почему `source`?** `switch-model.sh` меняет файл `~/.claude/.env`. Чтобы терминал подхватил новые значения без перезапуска сессии, нужно явно перечитать файл через `source`. Новые терминалы подхватывают изменения автоматически.
+
+**Предусловие:** оба режима работают только если запущен LiteLLM в той же сети и в `.env` раскомментирована строка:
+```env
+ANTHROPIC_BASE_URL=http://host.docker.internal:4000
+```
+Без этого `switch-model.sh` поменяет имена моделей, но запросы всё равно уйдут напрямую в Z.AI.
 
 ## Структура файлов
 
