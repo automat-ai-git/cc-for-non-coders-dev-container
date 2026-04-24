@@ -84,8 +84,8 @@ docker compose logs -f
 
 ```bash
 # Внутри контейнера (в терминале code-server):
-./switch-api-key.sh backup    # переключить на резервный
-./switch-api-key.sh primary   # вернуть основной
+~/switch-api-key.sh backup    # переключить на резервный
+~/switch-api-key.sh primary   # вернуть основной
 ```
 
 После переключения перезапустите Claude Code (`Ctrl+C`, затем `claude`).
@@ -96,9 +96,9 @@ docker compose logs -f
 
 ```bash
 # Внутри контейнера (в терминале code-server):
-./switch-model.sh cloud   # облако:  zai-cloud    → Z.AI / GLM-5.1
-./switch-model.sh local   # локально: ollama-local → Ollama / qwen2.5-coder:32b
-./switch-model.sh         # показать текущую модель
+~/switch-model.sh cloud   # облако:  zai-cloud    → Z.AI / GLM-5.1
+~/switch-model.sh local   # локально: ollama-local → Ollama / qwen2.5-coder:32b
+~/switch-model.sh         # показать текущую модель
 ```
 
 После переключения перезапустите Claude Code (`Ctrl+C`, затем `claude`).
