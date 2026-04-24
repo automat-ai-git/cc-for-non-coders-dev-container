@@ -31,4 +31,8 @@
 | `claude` | Запустить Claude Code |
 | `cd sessions/01-setup/demo/...` | Перейти к демо |
 | `cd ~/course` | Вернуться в корень |
-| `./switch-api-key.sh` | Переключить API-ключ |
+| `~/switch-api-key.sh [primary\|backup]` | Переключить API-ключ |
+| `~/switch-model.sh cloud` | Переключить на облако (Z.AI, по умолчанию) |
+| `~/switch-model.sh local` | Переключить на локальную модель (Ollama) |
+| `~/switch-model.sh` | Показать текущий режим |
+| `source ~/.claude/.env && claude` | Применить переключение и запустить |
