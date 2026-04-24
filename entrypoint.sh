@@ -64,6 +64,32 @@ fi
 SWITCH
 chmod +x /home/coder/switch-api-key.sh
 
+# Helper script to switch model (cloud vs local)
+cat > /home/coder/switch-model.sh << 'SWITCH'
+#!/usr/bin/env bash
+ENV_FILE="/home/coder/.claude/.env"
+
+case "${1:-}" in
+  cloud)
+    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=zai-cloud|" "$ENV_FILE"
+    echo "Switched to CLOUD: Z.AI / GLM-5.1"
+    echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
+    ;;
+  local)
+    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "$ENV_FILE"
+    echo "Switched to LOCAL: Ollama / qwen2.5-coder:32b"
+    echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
+    ;;
+  *)
+    echo "Usage: ./switch-model.sh [cloud|local]"
+    echo ""
+    CURRENT=$(grep ANTHROPIC_DEFAULT_SONNET_MODEL "$ENV_FILE" | cut -d= -f2)
+    echo "Current model: ${CURRENT}"
+    ;;
+esac
+SWITCH
+chmod +x /home/coder/switch-model.sh
+
 # Welcome banner in terminal
 cat >> /home/coder/.bashrc << 'BANNER'
 
@@ -74,6 +100,7 @@ echo -e "  Запустить Claude Code:  \033[1;32mclaude\033[0m"
 echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo/financial-dashboard\033[0m"
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m./switch-api-key.sh [primary|backup]\033[0m"
+echo -e "  Переключить модель:     \033[0;33m./switch-model.sh [cloud|local]\033[0m"
 echo ""
 BANNER
 
