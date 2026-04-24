@@ -97,7 +97,7 @@ docker compose logs -f
 ```bash
 # Внутри контейнера (в терминале code-server):
 ~/switch-model.sh cloud   # облако:  zai-cloud    → Z.AI / GLM-5.1
-~/switch-model.sh local   # локально: ollama-local → Ollama / qwen2.5-coder:32b
+~/switch-model.sh local   # локально: ollama-local → Ollama (модель в LiteLLM конфиге)
 ~/switch-model.sh         # показать текущую модель
 ```
 

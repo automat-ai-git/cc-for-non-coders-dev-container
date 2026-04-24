@@ -89,7 +89,7 @@ case "\${1:-}" in
     sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=ollama-local|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama-local|" "\$ENV_FILE"
-    echo "Switched to LOCAL: Ollama / qwen2.5-coder:32b"
+    echo "Switched to LOCAL: Ollama (модель задана в LiteLLM конфиге)"
     echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
     ;;
   *)
