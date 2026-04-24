@@ -24,7 +24,7 @@ cat > /home/coder/.claude/.env << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
 ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${ANTHROPIC_DEFAULT_OPUS_MODEL:-GLM-5.1}
-ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL:-GLM-4.7}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL:-zai-cloud}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-GLM-4.5-Air}
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
@@ -65,26 +65,38 @@ SWITCH
 chmod +x /home/coder/switch-api-key.sh
 
 # Helper script to switch model (cloud vs local)
-cat > /home/coder/switch-model.sh << 'SWITCH'
+# Оригинальные GLM-имена запекаются в скрипт в момент старта контейнера
+_CLOUD_OPUS="${ANTHROPIC_DEFAULT_OPUS_MODEL:-GLM-5.1}"
+_CLOUD_SONNET="${ANTHROPIC_DEFAULT_SONNET_MODEL:-GLM-4.7}"
+_CLOUD_HAIKU="${ANTHROPIC_DEFAULT_HAIKU_MODEL:-GLM-4.5-Air}"
+
+cat > /home/coder/switch-model.sh << SWITCH
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
 
-case "${1:-}" in
+case "\${1:-}" in
   cloud)
-    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=zai-cloud|" "$ENV_FILE"
-    echo "Switched to CLOUD: Z.AI / GLM-5.1"
+    sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=${_CLOUD_OPUS}|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=${_CLOUD_SONNET}|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=${_CLOUD_HAIKU}|" "\$ENV_FILE"
+    echo "Switched to CLOUD: Z.AI / GLM"
+    echo "  Opus   → ${_CLOUD_OPUS}"
+    echo "  Sonnet → ${_CLOUD_SONNET}"
+    echo "  Haiku  → ${_CLOUD_HAIKU}"
     echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
     ;;
   local)
-    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=ollama-local|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama-local|" "\$ENV_FILE"
     echo "Switched to LOCAL: Ollama / qwen2.5-coder:32b"
     echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
     ;;
   *)
     echo "Usage: ./switch-model.sh [cloud|local]"
     echo ""
-    CURRENT=$(grep ANTHROPIC_DEFAULT_SONNET_MODEL "$ENV_FILE" | cut -d= -f2)
-    echo "Current model: ${CURRENT}"
+    echo "Current:"
+    grep -E "ANTHROPIC_DEFAULT_(OPUS|SONNET|HAIKU)_MODEL" "\$ENV_FILE"
     ;;
 esac
 SWITCH
