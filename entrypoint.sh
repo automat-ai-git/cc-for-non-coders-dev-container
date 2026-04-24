@@ -77,27 +77,32 @@ ENV_FILE="/home/coder/.claude/.env"
 
 case "\${1:-}" in
   cloud)
+    sed -i "s|^ANTHROPIC_BASE_URL=.*|ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=${_CLOUD_OPUS}|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=${_CLOUD_SONNET}|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=${_CLOUD_HAIKU}|" "\$ENV_FILE"
-    echo "Switched to CLOUD: Z.AI / GLM"
+    echo "Switched to CLOUD: Z.AI (напрямую, без прокси)"
+    echo "  URL    → https://api.z.ai/api/anthropic"
     echo "  Opus   → ${_CLOUD_OPUS}"
     echo "  Sonnet → ${_CLOUD_SONNET}"
     echo "  Haiku  → ${_CLOUD_HAIKU}"
     echo "Apply: source ~/.claude/.env && claude"
     ;;
   local)
+    sed -i "s|^ANTHROPIC_BASE_URL=.*|ANTHROPIC_BASE_URL=http://host.docker.internal:4000|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=ollama-local|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "\$ENV_FILE"
     sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama-local|" "\$ENV_FILE"
-    echo "Switched to LOCAL: Ollama (модель задана в LiteLLM конфиге)"
+    echo "Switched to LOCAL: Ollama через LiteLLM"
+    echo "  URL    → http://host.docker.internal:4000"
+    echo "  Модель → ollama-local (задана в LiteLLM конфиге)"
     echo "Apply: source ~/.claude/.env && claude"
     ;;
   *)
     echo "Usage: ./switch-model.sh [cloud|local]"
     echo ""
     echo "Current:"
-    grep -E "ANTHROPIC_DEFAULT_(OPUS|SONNET|HAIKU)_MODEL" "\$ENV_FILE"
+    grep -E "ANTHROPIC_BASE_URL|ANTHROPIC_DEFAULT_(OPUS|SONNET|HAIKU)_MODEL" "\$ENV_FILE"
     ;;
 esac
 SWITCH
