@@ -26,7 +26,8 @@ services:
       - "8989:8080"
     volumes:
       - student-data:/home/coder/course
-      - /home/your-user/workspace:/home/coder/workspace
+      - ${HOME}:/home/coder/home:ro
+      - ${HOME}/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
     extra_hosts:
       - "host.docker.internal:host-gateway"
