@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     qpdf \
     tesseract-ocr \
     tesseract-ocr-rus \
+    docker.io \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
@@ -51,7 +52,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh |
 RUN npm install -g @anthropic-ai/claude-code
 
 # npm packages used by Skills (docx/pptx generation, web bundling)
-RUN npm install -g docx pptxgenjs parcel @parcel/config-default html-inline
+RUN npm install -g docx pptxgenjs parcel @parcel/config-default html-inline mcp-searxng
 
 # Python packages used by Skills
 RUN pip3 install --no-cache-dir \

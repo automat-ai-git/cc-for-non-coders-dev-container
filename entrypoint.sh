@@ -42,6 +42,15 @@ if [ -n "${PLANE_API_KEY:-}" ]; then
     echo "✓ Plane MCP configured (workspace: ${PLANE_WORKSPACE_SLUG})"
 fi
 
+# Настройка SearXNG MCP (веб-поиск для локальных моделей)
+if [ -n "${SEARXNG_URL:-}" ]; then
+    claude mcp add searxng \
+        --scope user \
+        -e SEARXNG_URL="${SEARXNG_URL}" \
+        -- mcp-searxng 2>/dev/null || true
+    echo "✓ SearXNG MCP configured (${SEARXNG_URL})"
+fi
+
 # Helper script to switch API keys (writes to .claude/.env so Claude Code picks it up)
 cat > /home/coder/switch-api-key.sh << 'SWITCH'
 #!/usr/bin/env bash
