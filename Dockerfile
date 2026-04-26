@@ -33,6 +33,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     netcat-openbsd \
     build-essential \
+    nano \
+    vim \
+    rsync \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
