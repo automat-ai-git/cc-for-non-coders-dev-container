@@ -30,6 +30,9 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-rus \
     docker.io \
+    zip \
+    netcat-openbsd \
+    build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
