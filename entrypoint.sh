@@ -89,13 +89,13 @@ case "\${1:-}" in
     echo "Apply: source ~/.claude/.env && claude"
     ;;
   local)
-    sed -i "s|^ANTHROPIC_BASE_URL=.*|ANTHROPIC_BASE_URL=http://host.docker.internal:4000|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=ollama-local|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=ollama-local|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama-local|" "\$ENV_FILE"
-    echo "Switched to LOCAL: Ollama через LiteLLM"
-    echo "  URL    → http://host.docker.internal:4000"
-    echo "  Модель → ollama-local (задана в LiteLLM конфиге)"
+    sed -i "s|^ANTHROPIC_BASE_URL=.*|ANTHROPIC_BASE_URL=http://host.docker.internal:11434|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}|" "\$ENV_FILE"
+    sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}|" "\$ENV_FILE"
+    echo "Switched to LOCAL: Ollama напрямую (нативный Anthropic API)"
+    echo "  URL    → http://host.docker.internal:11434"
+    echo "  Модель → ${OLLAMA_MODEL:-qwen36-pro-128k:latest}"
     echo "Apply: source ~/.claude/.env && claude"
     ;;
   *)

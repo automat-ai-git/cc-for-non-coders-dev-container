@@ -10,5 +10,6 @@
   "workbench.colorTheme": "Default Dark+",
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
-  "security.workspace.trust.enabled": false
+  "security.workspace.trust.enabled": false,
+  "remote.autoForwardPorts": false
 }
