@@ -12,6 +12,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+echo "=== Обновление репозитория ==="
+git -C "$SCRIPT_DIR" pull
+
+echo ""
 echo "=== Проверка ==="
 echo "  course/  — $(find "$SCRIPT_DIR/course" -type f | wc -l | tr -d ' ') файлов"
 echo "  skills/  — $(find "$SCRIPT_DIR/skills" -type d -maxdepth 1 | tail -n +2 | wc -l | tr -d ' ') навыков"
