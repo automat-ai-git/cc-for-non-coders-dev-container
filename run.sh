@@ -13,7 +13,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=== Обновление репозитория ==="
-git -C "$SCRIPT_DIR" pull
+git -C "$SCRIPT_DIR" pull || echo "⚠ git pull не удался, собираем текущую версию"
 
 echo ""
 echo "=== Проверка ==="
