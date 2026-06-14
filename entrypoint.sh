@@ -77,6 +77,62 @@ fi
 SWITCH
 chmod +x /home/coder/switch-api-key.sh
 
+# CLAUDE.md для домашней директории — Claude Code видит его из любой папки
+cat > /home/coder/CLAUDE.md << 'CLAUDEMD'
+# Рабочая среда курса
+
+## Текущий режим и модели
+
+Текущий конфиг: `~/.claude/.env`
+
+Посмотреть текущие настройки:
+```
+~/switch-model.sh
+```
+
+## Переключение режима
+
+```bash
+~/switch-model.sh subscription   # Claude по подписке
+~/switch-model.sh litellm        # LiteLLM-роутер
+source ~/.claude/.env && claude   # применить и запустить
+```
+
+## Доступные модели через LiteLLM
+
+В режиме litellm доступны три бэкенда. Проверить доступные модели:
+
+```bash
+# Все модели LiteLLM:
+curl -s http://host.docker.internal:4000/v1/models | python3 -m json.tool
+
+# Только Ollama:
+curl -s http://host.docker.internal:11434/api/tags | python3 -c "import sys,json; [print(m['name']) for m in json.loads(sys.stdin.read())['models']]"
+```
+
+### Имена моделей для ~/.claude/.env
+
+| Бэкенд | Формат имени | Примеры |
+|--------|-------------|---------|
+| GLM (Z.AI) | просто имя | `GLM-5.1`, `GLM-4.7`, `GLM-4.5-Air` |
+| Ollama | `ollama/имя` | `ollama/qwen2.5:0.5b`, `ollama/deepseek-r1:7b` |
+| llama-server (Windows) | `local/имя` | `local/any` |
+
+### Как сменить модель
+
+Отредактировать `~/.claude/.env` — поменять значения:
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` — модель для Opus-слота
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` — модель для Sonnet-слота (основная)
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` — модель для Haiku-слота (быстрая)
+
+После изменения: `source ~/.claude/.env && claude`
+
+## Безопасность
+
+Контейнер имеет доступ к Docker daemon через `/var/run/docker.sock`.
+Запрещено без разрешения пользователя: `--privileged`, `--cap-add SYS_ADMIN`, монтирование корня хоста, `--network host`.
+CLAUDEMD
+
 # Готовые профили: subscription и litellm
 # При переключении просто копируем нужный в .claude/.env — ничего не теряется
 
