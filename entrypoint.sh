@@ -18,17 +18,18 @@ if [ -d /home/coder/.course-image ] && [ ! -f /home/coder/course/.initialized ];
     touch /home/coder/course/.initialized
 fi
 
-# Write Claude Code env config with the active API key
-# Модели берём из GLM_*_MODEL (не из ANTHROPIC_DEFAULT_*_MODEL — те не передаются в контейнер)
+# Write Claude Code env config (only on first run — volume preserves user's choice)
 mkdir -p /home/coder/.claude
-cat > /home/coder/.claude/.env << EOF
+if [ ! -f /home/coder/.claude/.env ]; then
+    cat > /home/coder/.claude/.env << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
-ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
+ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://host.docker.internal:4000}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
+fi
 
 # Настройка Plane MCP (если задан API ключ)
 # Используем claude mcp add --scope user (settings.json mcpServers игнорируется Claude Code)
