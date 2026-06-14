@@ -138,18 +138,14 @@ SWITCH
 chmod +x /home/coder/switch-model.sh
 
 # Загружаем .claude/.env в каждом терминале как переменные окружения
-# Это позволяет switch-model.sh работать: файл → export → process env → Claude Code
-# set -a автоматически экспортирует все переменные из файла
+# Защита от дублирования при рестартах контейнера
+if ! grep -q '# CLAUDE_ENV_LOADER' /home/coder/.bashrc 2>/dev/null; then
 cat >> /home/coder/.bashrc << 'ENVLOAD'
 
-# Загрузка конфига Claude Code (модели, ключ, BASE_URL)
+# CLAUDE_ENV_LOADER
 set -a
 [ -f /home/coder/.claude/.env ] && source /home/coder/.claude/.env
 set +a
-ENVLOAD
-
-# Welcome banner in terminal
-cat >> /home/coder/.bashrc << 'BANNER'
 
 echo ""
 echo -e "\033[1;36m  Claude Code: рабочая среда курса\033[0m"
@@ -161,7 +157,8 @@ echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh 
 echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|litellm]\033[0m"
 echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
-BANNER
+ENVLOAD
+fi
 
 # Start File Browser in background (noauth + branding configured at build time in Dockerfile)
 FB_DB="/home/coder/.config/filebrowser/filebrowser.db"
@@ -174,6 +171,8 @@ filebrowser --database "$FB_DB" > /tmp/filebrowser.log 2>&1 &
 env -u ANTHROPIC_DEFAULT_OPUS_MODEL \
     -u ANTHROPIC_DEFAULT_SONNET_MODEL \
     -u ANTHROPIC_DEFAULT_HAIKU_MODEL \
+    -u ANTHROPIC_BASE_URL \
+    -u ANTHROPIC_AUTH_TOKEN \
     code-server \
     --bind-addr 127.0.0.1:8081 \
     --auth none \
