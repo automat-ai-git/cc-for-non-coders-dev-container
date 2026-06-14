@@ -12,6 +12,8 @@
 
 set -euo pipefail
 
+LITELLM_URL=${LITELLM_URL:-http://host.docker.internal:4000}
+
 # Initialize course directory from image if volume is empty (first run)
 if [ -d /home/coder/.course-image ] && [ ! -f /home/coder/course/.initialized ]; then
     cp -a /home/coder/.course-image/. /home/coder/course/
@@ -23,7 +25,7 @@ mkdir -p /home/coder/.claude
 if [ ! -f /home/coder/.claude/.env ]; then
     cat > /home/coder/.claude/.env << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
-ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://host.docker.internal:4000}
+ANTHROPIC_BASE_URL=${LITELLM_URL}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
@@ -84,7 +86,7 @@ EOF
 
 cat > /home/coder/.claude/.env.litellm << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
-ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://host.docker.internal:4000}
+ANTHROPIC_BASE_URL=${LITELLM_URL}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
