@@ -158,6 +158,7 @@ cat > /home/coder/switch-model.sh << 'SWITCH'
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
 DIR="/home/coder/.claude"
+LITELLM_BASE="http://host.docker.internal:4000"
 
 case "${1:-}" in
   subscription)
@@ -173,11 +174,11 @@ case "${1:-}" in
     echo "    source ~/.claude/.env && claude"
     echo ""
     ;;
-  litellm)
+  glm)
     cp "$DIR/.env.litellm" "$ENV_FILE"
     echo ""
-    echo "  ✓ Режим: LiteLLM-роутер"
-    echo "  Claude Code → LiteLLM → GLM / Ollama / ..."
+    echo "  ✓ Режим: GLM через LiteLLM"
+    echo "  Claude Code → LiteLLM → Z.AI"
     echo ""
     echo "  Текущий конфиг:"
     grep -E "BASE_URL|MODEL" "$ENV_FILE" | sed 's/^/    /'
@@ -185,12 +186,52 @@ case "${1:-}" in
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
     ;;
+  ollama)
+    MODEL="${2:?Укажи модель, например: ~/switch-model.sh ollama qwen2.5:0.5b}"
+    cat > "$ENV_FILE" << EOF
+ANTHROPIC_AUTH_TOKEN=litellm
+ANTHROPIC_BASE_URL=${LITELLM_BASE}
+ANTHROPIC_DEFAULT_OPUS_MODEL=ollama/${MODEL}
+ANTHROPIC_DEFAULT_SONNET_MODEL=ollama/${MODEL}
+ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama/${MODEL}
+API_TIMEOUT_MS=3000000
+EOF
+    echo ""
+    echo "  ✓ Режим: Ollama через LiteLLM"
+    echo "  Модель: ollama/${MODEL} (все слоты)"
+    echo ""
+    echo "  Применить: source ~/.claude/.env && claude"
+    echo ""
+    ;;
+  local)
+    MODEL="${2:-any}"
+    cat > "$ENV_FILE" << EOF
+ANTHROPIC_AUTH_TOKEN=litellm
+ANTHROPIC_BASE_URL=${LITELLM_BASE}
+ANTHROPIC_DEFAULT_OPUS_MODEL=local/${MODEL}
+ANTHROPIC_DEFAULT_SONNET_MODEL=local/${MODEL}
+ANTHROPIC_DEFAULT_HAIKU_MODEL=local/${MODEL}
+API_TIMEOUT_MS=3000000
+EOF
+    echo ""
+    echo "  ✓ Режим: llama-server (Windows) через LiteLLM"
+    echo "  Модель: local/${MODEL} (все слоты)"
+    echo ""
+    echo "  Применить: source ~/.claude/.env && claude"
+    echo ""
+    ;;
   *)
     echo ""
-    echo "  Использование: ~/switch-model.sh [subscription|litellm]"
+    echo "  Использование:"
+    echo "    ~/switch-model.sh subscription          — Claude по подписке"
+    echo "    ~/switch-model.sh glm                   — GLM (Z.AI) через LiteLLM"
+    echo "    ~/switch-model.sh ollama <модель>        — Ollama через LiteLLM"
+    echo "    ~/switch-model.sh local [модель]         — llama-server через LiteLLM"
     echo ""
-    echo "  subscription  — Claude по подписке (api.anthropic.com)"
-    echo "  litellm       — LiteLLM-роутер (GLM, Ollama, ...)"
+    echo "  Примеры:"
+    echo "    ~/switch-model.sh ollama qwen2.5:0.5b"
+    echo "    ~/switch-model.sh ollama deepseek-r1:32b"
+    echo "    ~/switch-model.sh local any"
     echo ""
     echo "  Текущий конфиг ~/.claude/.env:"
     cat "$ENV_FILE" | sed 's/^/    /'
@@ -217,7 +258,7 @@ echo -e "  Запустить Claude Code:  \033[1;32mclaude\033[0m"
 echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo/financial-dashboard\033[0m"
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh [primary|backup]\033[0m"
-echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|litellm]\033[0m"
+echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|ollama|local]\033[0m"
 echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
 ENVLOAD
