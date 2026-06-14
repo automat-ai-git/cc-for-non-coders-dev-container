@@ -137,6 +137,11 @@ CLAUDEMD
 # При переключении просто копируем нужный в .claude/.env — ничего не теряется
 
 cat > /home/coder/.claude/.env.subscription << 'EOF'
+ANTHROPIC_AUTH_TOKEN=
+ANTHROPIC_BASE_URL=
+ANTHROPIC_DEFAULT_OPUS_MODEL=
+ANTHROPIC_DEFAULT_SONNET_MODEL=
+ANTHROPIC_DEFAULT_HAIKU_MODEL=
 API_TIMEOUT_MS=3000000
 EOF
 
