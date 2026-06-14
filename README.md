@@ -90,18 +90,20 @@ docker compose logs -f
 
 После переключения перезапустите Claude Code (`Ctrl+C`, затем `claude`).
 
-## Переключение режима (подписка / LiteLLM)
+## Переключение режима
 
-Контейнер поддерживает два режима работы — по подписке Claude и через LiteLLM-роутер.
+Контейнер поддерживает четыре режима работы:
 
 ```bash
 # Внутри контейнера (в терминале code-server):
-~/switch-model.sh subscription   # Claude по подписке (api.anthropic.com)
-~/switch-model.sh litellm        # LiteLLM-роутер (GLM, Ollama, ...)
-~/switch-model.sh                # показать текущий режим
+~/switch-model.sh subscription           # Claude по подписке
+~/switch-model.sh glm                    # GLM (Z.AI) через LiteLLM
+~/switch-model.sh ollama qwen2.5:0.5b    # Ollama — указать модель
+~/switch-model.sh llama any              # llama-server на Windows
+~/switch-model.sh                        # показать текущий режим
 ```
 
-После переключения применить в текущем терминале и запустить Claude Code:
+После переключения применить и запустить:
 
 ```bash
 source ~/.claude/.env && claude
@@ -109,9 +111,13 @@ source ~/.claude/.env && claude
 
 > **Почему `source`?** `switch-model.sh` копирует нужный профиль в `~/.claude/.env`. Чтобы терминал подхватил новые значения без перезапуска сессии, нужно явно перечитать файл через `source`. Новые терминалы подхватывают изменения автоматически.
 
-**Режим `subscription`:** требуется подписка Claude Pro/Max. При первом переключении нужно выполнить `claude login` для авторизации через браузер.
+**`subscription`** — требуется подписка Claude Pro/Max. При первом запуске: `claude login`.
 
-**Режим `litellm`:** LiteLLM-роутер решает, куда направить запрос — GLM, Ollama, OpenAI и т.д. Настройка моделей — в конфиге LiteLLM, вне контейнера.
+**`glm`** — GLM-модели через Z.AI, роутинг через LiteLLM.
+
+**`ollama <модель>`** — локальные модели Ollama. Указать имя модели (например `qwen2.5:0.5b`, `deepseek-r1:32b`).
+
+**`llama <модель>`** — llama-server на Windows (GPU). Модели GGUF с диска.
 
 ## Структура файлов
 

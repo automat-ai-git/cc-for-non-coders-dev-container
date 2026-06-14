@@ -118,14 +118,16 @@ curl -s http://host.docker.internal:11434/api/tags | python3 -c "import sys,json
 | Ollama | `ollama/имя` | `ollama/qwen2.5:0.5b`, `ollama/deepseek-r1:7b` |
 | llama-server (Windows) | `local/имя` | `local/any` |
 
-### Как сменить модель
+### Переключение модели
 
-Отредактировать `~/.claude/.env` — поменять значения:
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` — модель для Opus-слота
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` — модель для Sonnet-слота (основная)
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` — модель для Haiku-слота (быстрая)
+```bash
+~/switch-model.sh subscription           # Claude по подписке
+~/switch-model.sh glm                    # GLM (Z.AI) через LiteLLM
+~/switch-model.sh ollama qwen2.5:0.5b    # Ollama — указать модель
+~/switch-model.sh llama any              # llama-server на Windows
+```
 
-После изменения: `source ~/.claude/.env && claude`
+После переключения: `source ~/.claude/.env && claude`
 
 ## Безопасность
 
@@ -203,7 +205,7 @@ EOF
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
     ;;
-  local)
+  llama)
     MODEL="${2:-any}"
     cat > "$ENV_FILE" << EOF
 ANTHROPIC_AUTH_TOKEN=litellm
@@ -226,12 +228,12 @@ EOF
     echo "    ~/switch-model.sh subscription          — Claude по подписке"
     echo "    ~/switch-model.sh glm                   — GLM (Z.AI) через LiteLLM"
     echo "    ~/switch-model.sh ollama <модель>        — Ollama через LiteLLM"
-    echo "    ~/switch-model.sh local [модель]         — llama-server через LiteLLM"
+    echo "    ~/switch-model.sh llama [модель]          — llama-server через LiteLLM"
     echo ""
     echo "  Примеры:"
     echo "    ~/switch-model.sh ollama qwen2.5:0.5b"
     echo "    ~/switch-model.sh ollama deepseek-r1:32b"
-    echo "    ~/switch-model.sh local any"
+    echo "    ~/switch-model.sh llama any"
     echo ""
     echo "  Текущий конфиг ~/.claude/.env:"
     cat "$ENV_FILE" | sed 's/^/    /'
@@ -258,7 +260,7 @@ echo -e "  Запустить Claude Code:  \033[1;32mclaude\033[0m"
 echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo/financial-dashboard\033[0m"
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh [primary|backup]\033[0m"
-echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|ollama|local]\033[0m"
+echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|ollama|llama]\033[0m"
 echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
 ENVLOAD

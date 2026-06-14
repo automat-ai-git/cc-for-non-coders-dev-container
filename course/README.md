@@ -32,16 +32,18 @@
 | `cd sessions/01-setup/demo/...` | Перейти к демо |
 | `cd ~/course` | Вернуться в корень |
 | `~/switch-api-key.sh [primary\|backup]` | Переключить API-ключ |
-| `~/switch-model.sh subscription` | Claude по подписке (api.anthropic.com) |
-| `~/switch-model.sh litellm` | LiteLLM-роутер (GLM, Ollama, ...) |
+| `~/switch-model.sh subscription` | Claude по подписке |
+| `~/switch-model.sh glm` | GLM (Z.AI) через LiteLLM |
+| `~/switch-model.sh ollama <модель>` | Ollama через LiteLLM |
+| `~/switch-model.sh llama <модель>` | llama-server (Windows) через LiteLLM |
 | `~/switch-model.sh` | Показать текущий режим |
 | `source ~/.claude/.env && claude` | Применить переключение и запустить |
 
 ## Режимы работы
 
-Контейнер поддерживает два режима — по подписке Claude и через LiteLLM-роутер.
+Контейнер поддерживает четыре режима.
 
-### Переключение на подписку Claude
+### Claude по подписке
 
 ```bash
 ~/switch-model.sh subscription
@@ -49,10 +51,24 @@ source ~/.claude/.env && claude login   # первый раз — авториз
 source ~/.claude/.env && claude         # потом просто запуск
 ```
 
-### Переключение на LiteLLM-роутер
+### GLM (Z.AI)
 
 ```bash
-~/switch-model.sh litellm
+~/switch-model.sh glm
+source ~/.claude/.env && claude
+```
+
+### Ollama (локальные модели)
+
+```bash
+~/switch-model.sh ollama qwen2.5:0.5b
+source ~/.claude/.env && claude
+```
+
+### llama-server (Windows GPU)
+
+```bash
+~/switch-model.sh llama any
 source ~/.claude/.env && claude
 ```
 
