@@ -35,7 +35,7 @@
 | `~/switch-model.sh subscription` | Claude по подписке |
 | `~/switch-model.sh glm` | GLM (Z.AI) напрямую |
 | `~/switch-model.sh ollama <модель>` | Ollama напрямую (v0.14+) |
-| `~/switch-model.sh lmstudio <модель>` | LM Studio напрямую (v0.4.1+) |
+| `~/switch-model.sh lmstudio` | LM Studio напрямую (v0.4.1+) |
 | `~/switch-model.sh` | Показать текущий режим |
 | `source ~/.claude/.env && claude` | Применить переключение и запустить |
 
@@ -68,7 +68,7 @@ source ~/.claude/.env && claude
 ### LM Studio (Windows GPU)
 
 ```bash
-~/switch-model.sh lmstudio qwen3-coder
+~/switch-model.sh lmstudio
 source ~/.claude/.env && claude
 ```
 

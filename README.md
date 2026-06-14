@@ -99,7 +99,7 @@ docker compose logs -f
 ~/switch-model.sh subscription           # Claude по подписке
 ~/switch-model.sh glm                    # GLM (Z.AI) напрямую
 ~/switch-model.sh ollama qwen3:32b       # Ollama напрямую
-~/switch-model.sh lmstudio qwen3-coder   # LM Studio напрямую
+~/switch-model.sh lmstudio               # LM Studio напрямую
 ~/switch-model.sh                        # показать текущий режим
 ```
 
@@ -117,7 +117,7 @@ source ~/.claude/.env && claude
 
 **`ollama <модель>`** — локальные модели Ollama (v0.14+). Anthropic-совместимый эндпоинт, стриминг и tool calling напрямую.
 
-**`lmstudio <модель>`** — LM Studio (v0.4.1+) на Windows. Anthropic-совместимый эндпоинт `/v1/messages`.
+**`lmstudio`** — LM Studio (v0.4.1+) на Windows. Anthropic-совместимый эндпоинт `/v1/messages`. Отдаёт загруженную модель.
 
 ## Структура файлов
 

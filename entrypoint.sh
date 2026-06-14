@@ -94,7 +94,7 @@ cat > /home/coder/CLAUDE.md << 'CLAUDEMD'
 ~/switch-model.sh subscription           # Claude по подписке
 ~/switch-model.sh glm                    # GLM (Z.AI) напрямую
 ~/switch-model.sh ollama qwen3:32b       # Ollama напрямую (v0.14+)
-~/switch-model.sh lmstudio modelname     # LM Studio напрямую (v0.4.1+)
+~/switch-model.sh lmstudio               # LM Studio напрямую (v0.4.1+)
 source ~/.claude/.env && claude          # применить и запустить
 ```
 
@@ -193,7 +193,7 @@ EOF
     echo ""
     ;;
   lmstudio)
-    MODEL="${2:?Укажи модель, например: ~/switch-model.sh lmstudio qwen3-coder}"
+    MODEL="${2:-default}"
     cat > "$ENV_FILE" << EOF
 ANTHROPIC_AUTH_TOKEN=lmstudio
 ANTHROPIC_BASE_URL=http://host.docker.internal:1234
@@ -216,12 +216,12 @@ EOF
     echo "    ~/switch-model.sh subscription          — Claude по подписке"
     echo "    ~/switch-model.sh glm                   — GLM (Z.AI) напрямую"
     echo "    ~/switch-model.sh ollama <модель>        — Ollama напрямую"
-    echo "    ~/switch-model.sh lmstudio <модель>      — LM Studio напрямую"
+    echo "    ~/switch-model.sh lmstudio [модель]       — LM Studio напрямую"
     echo ""
     echo "  Примеры:"
     echo "    ~/switch-model.sh ollama qwen3:32b"
     echo "    ~/switch-model.sh ollama deepseek-r1:32b"
-    echo "    ~/switch-model.sh lmstudio qwen3-coder"
+    echo "    ~/switch-model.sh lmstudio"
     echo ""
     echo "  Все режимы подключаются напрямую без прокси."
     echo ""
