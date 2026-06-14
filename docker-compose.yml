@@ -27,6 +27,7 @@ services:
       - "8989:8080"
     volumes:
       - student-data:/home/coder/course
+      - claude-config:/home/coder/.claude
       - ${HOME}:/home/coder/home:ro
       - ${HOME}/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
@@ -48,6 +49,7 @@ services:
 
 volumes:
   student-data:
+  claude-config:
 
 networks:
   localai_default:

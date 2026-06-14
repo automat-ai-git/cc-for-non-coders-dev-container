@@ -74,44 +74,63 @@ fi
 SWITCH
 chmod +x /home/coder/switch-api-key.sh
 
-# Helper script to switch model (cloud vs local)
-# Оригинальные GLM-имена запекаются в скрипт в момент старта контейнера
-_CLOUD_OPUS="${GLM_OPUS_MODEL:-GLM-5.1}"
-_CLOUD_SONNET="${GLM_SONNET_MODEL:-GLM-4.7}"
-_CLOUD_HAIKU="${GLM_HAIKU_MODEL:-GLM-4.5-Air}"
+# Готовые профили: subscription и litellm
+# При переключении просто копируем нужный в .claude/.env — ничего не теряется
 
-cat > /home/coder/switch-model.sh << SWITCH
+cat > /home/coder/.claude/.env.subscription << 'EOF'
+API_TIMEOUT_MS=3000000
+EOF
+
+cat > /home/coder/.claude/.env.litellm << EOF
+ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://litellm:4000}
+ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
+ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
+API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
+EOF
+
+cat > /home/coder/switch-model.sh << 'SWITCH'
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
+DIR="/home/coder/.claude"
 
-case "\${1:-}" in
-  cloud)
-    sed -i "s|^ANTHROPIC_BASE_URL=.*|ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=${_CLOUD_OPUS}|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=${_CLOUD_SONNET}|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=${_CLOUD_HAIKU}|" "\$ENV_FILE"
-    echo "Switched to CLOUD: Z.AI (напрямую, без прокси)"
-    echo "  URL    → https://api.z.ai/api/anthropic"
-    echo "  Opus   → ${_CLOUD_OPUS}"
-    echo "  Sonnet → ${_CLOUD_SONNET}"
-    echo "  Haiku  → ${_CLOUD_HAIKU}"
-    echo "Apply: source ~/.claude/.env && claude"
+case "${1:-}" in
+  subscription)
+    cp "$DIR/.env.subscription" "$ENV_FILE"
+    echo ""
+    echo "  ✓ Режим: ПОДПИСКА Claude"
+    echo "  Claude Code → api.anthropic.com (напрямую)"
+    echo ""
+    echo "  Если ещё не залогинен:"
+    echo "    source ~/.claude/.env && claude login"
+    echo ""
+    echo "  Если уже залогинен:"
+    echo "    source ~/.claude/.env && claude"
+    echo ""
     ;;
-  local)
-    sed -i "s|^ANTHROPIC_BASE_URL=.*|ANTHROPIC_BASE_URL=http://host.docker.internal:11434|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_OPUS_MODEL=.*|ANTHROPIC_DEFAULT_OPUS_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_SONNET_MODEL=.*|ANTHROPIC_DEFAULT_SONNET_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}|" "\$ENV_FILE"
-    sed -i "s|^ANTHROPIC_DEFAULT_HAIKU_MODEL=.*|ANTHROPIC_DEFAULT_HAIKU_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}|" "\$ENV_FILE"
-    echo "Switched to LOCAL: Ollama напрямую (нативный Anthropic API)"
-    echo "  URL    → http://host.docker.internal:11434"
-    echo "  Модель → ${OLLAMA_MODEL:-qwen36-pro-128k:latest}"
-    echo "Apply: source ~/.claude/.env && claude"
+  litellm)
+    cp "$DIR/.env.litellm" "$ENV_FILE"
+    echo ""
+    echo "  ✓ Режим: LiteLLM-роутер"
+    echo "  Claude Code → LiteLLM → GLM / Ollama / ..."
+    echo ""
+    echo "  Текущий конфиг:"
+    grep -E "BASE_URL|MODEL" "$ENV_FILE" | sed 's/^/    /'
+    echo ""
+    echo "  Применить: source ~/.claude/.env && claude"
+    echo ""
     ;;
   *)
-    echo "Usage: ./switch-model.sh [cloud|local]"
     echo ""
-    echo "Current:"
-    grep -E "ANTHROPIC_BASE_URL|ANTHROPIC_DEFAULT_(OPUS|SONNET|HAIKU)_MODEL" "\$ENV_FILE"
+    echo "  Использование: ~/switch-model.sh [subscription|litellm]"
+    echo ""
+    echo "  subscription  — Claude по подписке (api.anthropic.com)"
+    echo "  litellm       — LiteLLM-роутер (GLM, Ollama, ...)"
+    echo ""
+    echo "  Текущий конфиг ~/.claude/.env:"
+    cat "$ENV_FILE" | sed 's/^/    /'
+    echo ""
     ;;
 esac
 SWITCH
@@ -138,7 +157,7 @@ echo -e "  Запустить Claude Code:  \033[1;32mclaude\033[0m"
 echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo/financial-dashboard\033[0m"
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh [primary|backup]\033[0m"
-echo -e "  Переключить модель:     \033[0;33m~/switch-model.sh [cloud|local]\033[0m"
+echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|litellm]\033[0m"
 echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
 BANNER

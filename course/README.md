@@ -32,26 +32,27 @@
 | `cd sessions/01-setup/demo/...` | Перейти к демо |
 | `cd ~/course` | Вернуться в корень |
 | `~/switch-api-key.sh [primary\|backup]` | Переключить API-ключ |
-| `~/switch-model.sh cloud` | Переключить на облако (Z.AI, по умолчанию) |
-| `~/switch-model.sh local` | Переключить на локальную модель (Ollama) |
+| `~/switch-model.sh subscription` | Claude по подписке (api.anthropic.com) |
+| `~/switch-model.sh litellm` | LiteLLM-роутер (GLM, Ollama, ...) |
 | `~/switch-model.sh` | Показать текущий режим |
 | `source ~/.claude/.env && claude` | Применить переключение и запустить |
 
 ## Режимы работы
 
-По умолчанию после запуска контейнера Claude Code работает через **облако** (Z.AI, GLM-модели).
+Контейнер поддерживает два режима — по подписке Claude и через LiteLLM-роутер.
 
-### Переключение на локальную модель (Ollama)
+### Переключение на подписку Claude
 
 ```bash
-~/switch-model.sh local
-source ~/.claude/.env && claude
+~/switch-model.sh subscription
+source ~/.claude/.env && claude login   # первый раз — авторизация
+source ~/.claude/.env && claude         # потом просто запуск
 ```
 
-### Переключение обратно на облако
+### Переключение на LiteLLM-роутер
 
 ```bash
-~/switch-model.sh cloud
+~/switch-model.sh litellm
 source ~/.claude/.env && claude
 ```
 
