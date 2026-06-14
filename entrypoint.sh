@@ -107,7 +107,7 @@ source ~/.claude/.env && claude          # применить и запусти�
 | subscription | api.anthropic.com | Anthropic API |
 | glm | api.z.ai/api/anthropic | Anthropic-совместимый |
 | ollama | host.docker.internal:11434 | Anthropic-совместимый |
-| lmstudio | host.docker.internal:1234 | Anthropic-совместимый |
+| lmstudio | lmstudio-host:1234 | Anthropic-совместимый |
 
 ## Проверить модели Ollama
 
@@ -196,7 +196,7 @@ EOF
     MODEL="${2:-default}"
     cat > "$ENV_FILE" << EOF
 ANTHROPIC_AUTH_TOKEN=lmstudio
-ANTHROPIC_BASE_URL=http://host.docker.internal:1234
+ANTHROPIC_BASE_URL=http://lmstudio-host:1234
 ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${MODEL}
@@ -205,7 +205,7 @@ EOF
     echo ""
     echo "  ✓ Режим: LM Studio напрямую (Anthropic compat)"
     echo "  Модель: ${MODEL}"
-    echo "  Claude Code → host.docker.internal:1234"
+    echo "  Claude Code → lmstudio-host:1234"
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
