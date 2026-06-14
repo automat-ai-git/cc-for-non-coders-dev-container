@@ -33,9 +33,9 @@
 | `cd ~/course` | Вернуться в корень |
 | `~/switch-api-key.sh [primary\|backup]` | Переключить API-ключ |
 | `~/switch-model.sh subscription` | Claude по подписке |
-| `~/switch-model.sh glm` | GLM (Z.AI) через LiteLLM |
-| `~/switch-model.sh ollama <модель>` | Ollama через LiteLLM |
-| `~/switch-model.sh llama <модель>` | llama-server (Windows) через LiteLLM |
+| `~/switch-model.sh glm` | GLM (Z.AI) напрямую |
+| `~/switch-model.sh ollama <модель>` | Ollama напрямую (v0.14+) |
+| `~/switch-model.sh lmstudio <модель>` | LM Studio напрямую (v0.4.1+) |
 | `~/switch-model.sh` | Показать текущий режим |
 | `source ~/.claude/.env && claude` | Применить переключение и запустить |
 
@@ -61,14 +61,14 @@ source ~/.claude/.env && claude
 ### Ollama (локальные модели)
 
 ```bash
-~/switch-model.sh ollama qwen2.5:0.5b
+~/switch-model.sh ollama qwen3:32b
 source ~/.claude/.env && claude
 ```
 
-### llama-server (Windows GPU)
+### LM Studio (Windows GPU)
 
 ```bash
-~/switch-model.sh llama any
+~/switch-model.sh lmstudio qwen3-coder
 source ~/.claude/.env && claude
 ```
 

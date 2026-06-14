@@ -92,14 +92,14 @@ docker compose logs -f
 
 ## Переключение режима
 
-Контейнер поддерживает четыре режима работы:
+Контейнер поддерживает четыре режима работы — все подключаются напрямую, без прокси:
 
 ```bash
 # Внутри контейнера (в терминале code-server):
 ~/switch-model.sh subscription           # Claude по подписке
-~/switch-model.sh glm                    # GLM (Z.AI) через LiteLLM
-~/switch-model.sh ollama qwen2.5:0.5b    # Ollama — указать модель
-~/switch-model.sh llama any              # llama-server на Windows
+~/switch-model.sh glm                    # GLM (Z.AI) напрямую
+~/switch-model.sh ollama qwen3:32b       # Ollama напрямую
+~/switch-model.sh lmstudio qwen3-coder   # LM Studio напрямую
 ~/switch-model.sh                        # показать текущий режим
 ```
 
@@ -113,11 +113,11 @@ source ~/.claude/.env && claude
 
 **`subscription`** — требуется подписка Claude Pro/Max. При первом запуске: `claude login`.
 
-**`glm`** — GLM-модели через Z.AI, роутинг через LiteLLM.
+**`glm`** — GLM-модели через Z.AI. Anthropic-совместимый протокол.
 
-**`ollama <модель>`** — локальные модели Ollama. Указать имя модели (например `qwen2.5:0.5b`, `deepseek-r1:32b`).
+**`ollama <модель>`** — локальные модели Ollama (v0.14+). Anthropic-совместимый эндпоинт, стриминг и tool calling напрямую.
 
-**`llama <модель>`** — llama-server на Windows (GPU). Модели GGUF с диска.
+**`lmstudio <модель>`** — LM Studio (v0.4.1+) на Windows. Anthropic-совместимый эндпоинт `/v1/messages`.
 
 ## Структура файлов
 

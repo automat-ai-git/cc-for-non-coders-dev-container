@@ -12,8 +12,6 @@
 
 set -euo pipefail
 
-LITELLM_URL=${LITELLM_URL:-http://host.docker.internal:4000}
-
 # Initialize course directory from image if volume is empty (first run)
 if [ -d /home/coder/.course-image ] && [ ! -f /home/coder/course/.initialized ]; then
     cp -a /home/coder/.course-image/. /home/coder/course/
@@ -24,8 +22,8 @@ fi
 mkdir -p /home/coder/.claude
 if [ ! -f /home/coder/.claude/.env ]; then
     cat > /home/coder/.claude/.env << EOF
-ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-litellm}
-ANTHROPIC_BASE_URL=${LITELLM_URL}
+ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
@@ -93,41 +91,29 @@ cat > /home/coder/CLAUDE.md << 'CLAUDEMD'
 ## Переключение режима
 
 ```bash
-~/switch-model.sh subscription   # Claude по подписке
-~/switch-model.sh litellm        # LiteLLM-роутер
-source ~/.claude/.env && claude   # применить и запустить
+~/switch-model.sh subscription           # Claude по подписке
+~/switch-model.sh glm                    # GLM (Z.AI) напрямую
+~/switch-model.sh ollama qwen3:32b       # Ollama напрямую (v0.14+)
+~/switch-model.sh lmstudio modelname     # LM Studio напрямую (v0.4.1+)
+source ~/.claude/.env && claude          # применить и запустить
 ```
 
-## Доступные модели через LiteLLM
+## Прямые подключения
 
-В режиме litellm доступны три бэкенда. Проверить доступные модели:
+Все режимы подключаются напрямую без прокси:
+
+| Режим | Куда идут запросы | Протокол |
+|-------|------------------|----------|
+| subscription | api.anthropic.com | Anthropic API |
+| glm | api.z.ai/api/anthropic | Anthropic-совместимый |
+| ollama | host.docker.internal:11434 | Anthropic-совместимый |
+| lmstudio | host.docker.internal:1234 | Anthropic-совместимый |
+
+## Проверить модели Ollama
 
 ```bash
-# Все модели LiteLLM:
-curl -s http://host.docker.internal:4000/v1/models | python3 -m json.tool
-
-# Только Ollama:
 curl -s http://host.docker.internal:11434/api/tags | python3 -c "import sys,json; [print(m['name']) for m in json.loads(sys.stdin.read())['models']]"
 ```
-
-### Имена моделей для ~/.claude/.env
-
-| Бэкенд | Формат имени | Примеры |
-|--------|-------------|---------|
-| GLM (Z.AI) | просто имя | `GLM-5.1`, `GLM-4.7`, `GLM-4.5-Air` |
-| Ollama | `ollama/имя` | `ollama/qwen2.5:0.5b`, `ollama/deepseek-r1:7b` |
-| llama-server (Windows) | `local/имя` | `local/any` |
-
-### Переключение модели
-
-```bash
-~/switch-model.sh subscription           # Claude по подписке
-~/switch-model.sh glm                    # GLM (Z.AI) через LiteLLM
-~/switch-model.sh ollama qwen2.5:0.5b    # Ollama — указать модель
-~/switch-model.sh llama any              # llama-server на Windows
-```
-
-После переключения: `source ~/.claude/.env && claude`
 
 ## Безопасность
 
@@ -135,8 +121,9 @@ curl -s http://host.docker.internal:11434/api/tags | python3 -c "import sys,json
 Запрещено без разрешения пользователя: `--privileged`, `--cap-add SYS_ADMIN`, монтирование корня хоста, `--network host`.
 CLAUDEMD
 
-# Готовые профили: subscription и litellm
-# При переключении просто копируем нужный в .claude/.env — ничего не теряется
+# Готовые профили: subscription и glm
+# При переключении просто копируем нужный в .claude/.env
+# Ollama и LM Studio генерируются динамически в switch-model.sh
 
 cat > /home/coder/.claude/.env.subscription << 'EOF'
 ANTHROPIC_AUTH_TOKEN=
@@ -147,9 +134,9 @@ ANTHROPIC_DEFAULT_HAIKU_MODEL=
 API_TIMEOUT_MS=3000000
 EOF
 
-cat > /home/coder/.claude/.env.litellm << EOF
-ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-litellm}
-ANTHROPIC_BASE_URL=${LITELLM_URL}
+cat > /home/coder/.claude/.env.glm << EOF
+ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.1}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-4.7}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.5-Air}
@@ -160,7 +147,6 @@ cat > /home/coder/switch-model.sh << 'SWITCH'
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
 DIR="/home/coder/.claude"
-LITELLM_BASE="http://host.docker.internal:4000"
 
 case "${1:-}" in
   subscription)
@@ -177,10 +163,10 @@ case "${1:-}" in
     echo ""
     ;;
   glm)
-    cp "$DIR/.env.litellm" "$ENV_FILE"
+    cp "$DIR/.env.glm" "$ENV_FILE"
     echo ""
-    echo "  ✓ Режим: GLM через LiteLLM"
-    echo "  Claude Code → LiteLLM → Z.AI"
+    echo "  ✓ Режим: GLM (Z.AI) напрямую"
+    echo "  Claude Code → api.z.ai/api/anthropic"
     echo ""
     echo "  Текущий конфиг:"
     grep -E "BASE_URL|MODEL" "$ENV_FILE" | sed 's/^/    /'
@@ -189,35 +175,37 @@ case "${1:-}" in
     echo ""
     ;;
   ollama)
-    MODEL="${2:?Укажи модель, например: ~/switch-model.sh ollama qwen2.5:0.5b}"
+    MODEL="${2:?Укажи модель, например: ~/switch-model.sh ollama qwen3:32b}"
     cat > "$ENV_FILE" << EOF
-ANTHROPIC_AUTH_TOKEN=litellm
-ANTHROPIC_BASE_URL=${LITELLM_BASE}
-ANTHROPIC_DEFAULT_OPUS_MODEL=ollama/${MODEL}
-ANTHROPIC_DEFAULT_SONNET_MODEL=ollama/${MODEL}
-ANTHROPIC_DEFAULT_HAIKU_MODEL=ollama/${MODEL}
+ANTHROPIC_AUTH_TOKEN=ollama
+ANTHROPIC_BASE_URL=http://host.docker.internal:11434
+ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL}
+ANTHROPIC_DEFAULT_HAIKU_MODEL=${MODEL}
 API_TIMEOUT_MS=3000000
 EOF
     echo ""
-    echo "  ✓ Режим: Ollama через LiteLLM"
-    echo "  Модель: ollama/${MODEL} (все слоты)"
+    echo "  ✓ Режим: Ollama напрямую (Anthropic compat)"
+    echo "  Модель: ${MODEL}"
+    echo "  Claude Code → host.docker.internal:11434"
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
     ;;
-  llama)
-    MODEL="${2:-any}"
+  lmstudio)
+    MODEL="${2:?Укажи модель, например: ~/switch-model.sh lmstudio qwen3-coder}"
     cat > "$ENV_FILE" << EOF
-ANTHROPIC_AUTH_TOKEN=litellm
-ANTHROPIC_BASE_URL=${LITELLM_BASE}
-ANTHROPIC_DEFAULT_OPUS_MODEL=local/${MODEL}
-ANTHROPIC_DEFAULT_SONNET_MODEL=local/${MODEL}
-ANTHROPIC_DEFAULT_HAIKU_MODEL=local/${MODEL}
+ANTHROPIC_AUTH_TOKEN=lmstudio
+ANTHROPIC_BASE_URL=http://host.docker.internal:1234
+ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL}
+ANTHROPIC_DEFAULT_HAIKU_MODEL=${MODEL}
 API_TIMEOUT_MS=3000000
 EOF
     echo ""
-    echo "  ✓ Режим: llama-server (Windows) через LiteLLM"
-    echo "  Модель: local/${MODEL} (все слоты)"
+    echo "  ✓ Режим: LM Studio напрямую (Anthropic compat)"
+    echo "  Модель: ${MODEL}"
+    echo "  Claude Code → host.docker.internal:1234"
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
@@ -226,14 +214,16 @@ EOF
     echo ""
     echo "  Использование:"
     echo "    ~/switch-model.sh subscription          — Claude по подписке"
-    echo "    ~/switch-model.sh glm                   — GLM (Z.AI) через LiteLLM"
-    echo "    ~/switch-model.sh ollama <модель>        — Ollama через LiteLLM"
-    echo "    ~/switch-model.sh llama [модель]          — llama-server через LiteLLM"
+    echo "    ~/switch-model.sh glm                   — GLM (Z.AI) напрямую"
+    echo "    ~/switch-model.sh ollama <модель>        — Ollama напрямую"
+    echo "    ~/switch-model.sh lmstudio <модель>      — LM Studio напрямую"
     echo ""
     echo "  Примеры:"
-    echo "    ~/switch-model.sh ollama qwen2.5:0.5b"
+    echo "    ~/switch-model.sh ollama qwen3:32b"
     echo "    ~/switch-model.sh ollama deepseek-r1:32b"
-    echo "    ~/switch-model.sh llama any"
+    echo "    ~/switch-model.sh lmstudio qwen3-coder"
+    echo ""
+    echo "  Все режимы подключаются напрямую без прокси."
     echo ""
     echo "  Текущий конфиг ~/.claude/.env:"
     cat "$ENV_FILE" | sed 's/^/    /'
@@ -260,7 +250,7 @@ echo -e "  Запустить Claude Code:  \033[1;32mclaude\033[0m"
 echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo/financial-dashboard\033[0m"
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh [primary|backup]\033[0m"
-echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|ollama|llama]\033[0m"
+echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|ollama|lmstudio]\033[0m"
 echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
 ENVLOAD
