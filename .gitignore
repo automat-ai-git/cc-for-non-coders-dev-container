@@ -3,6 +3,10 @@
 *.env
 !.env.example
 
+# Данные контейнера — хранятся локально
+student-data/
+claude-config/
+
 # Docker override
 docker-compose.override.yml
 
