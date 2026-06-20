@@ -31,6 +31,7 @@ services:
       - ${HOME}:/home/coder/home:ro
       - ${HOME}/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
+      - /path/to/meeting-data:/meeting-data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
