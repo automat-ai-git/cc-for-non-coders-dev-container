@@ -11,5 +11,7 @@
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "security.workspace.trust.enabled": false,
-  "remote.autoForwardPorts": false
+  "remote.autoForwardPorts": false,
+  "terminal.integrated.copyOnSelection": true,
+  "terminal.integrated.enableOsc52": true
 }
