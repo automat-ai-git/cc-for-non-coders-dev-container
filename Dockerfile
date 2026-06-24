@@ -96,8 +96,10 @@ RUN ln -sf /usr/bin/code-server /usr/local/bin/code
 
 # Create user
 # docker GID 1001 matches host — gives coder access to docker.sock without root
-RUN groupmod -g 1001 docker && \
-    useradd -m -s /bin/bash -G sudo,docker coder \
+# workspace_users GID 2000 — shared access to ~/workspace across containers (Pi, Goose, MIMO)
+RUN groupadd -g 2000 workspace_users 2>/dev/null || true && \
+    groupmod -g 1001 docker && \
+    useradd -m -s /bin/bash -G sudo,docker,workspace_users coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/coder
 
 USER coder

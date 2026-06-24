@@ -9,6 +9,9 @@ services:
   student:
     build: .
     container_name: claude-code
+    group_add:
+      - "${DOCKER_GID:-1001}"
+      - "2000"
     environment:
       - PASSWORD=${PASSWORD:-student-2026}
       - ANTHROPIC_AUTH_TOKEN=${GLM_API_KEY:-}
