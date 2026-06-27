@@ -106,13 +106,13 @@ source ~/.claude/.env && claude          # применить и запусти�
 |-------|------------------|----------|
 | subscription | api.anthropic.com | Anthropic API |
 | glm | api.z.ai/api/anthropic | Anthropic-совместимый |
-| ollama | host.docker.internal:11434 | Anthropic-совместимый |
+| ollama | ollama:11434 | Anthropic-совместимый |
 | lmstudio | lmstudio-host:8080 | Anthropic-совместимый |
 
 ## Проверить модели Ollama
 
 ```bash
-curl -s http://host.docker.internal:11434/api/tags | python3 -c "import sys,json; [print(m['name']) for m in json.loads(sys.stdin.read())['models']]"
+curl -s http://ollama:11434/api/tags | python3 -c "import sys,json; [print(m['name']) for m in json.loads(sys.stdin.read())['models']]"
 ```
 
 ## Безопасность
@@ -178,7 +178,7 @@ case "${1:-}" in
     MODEL="${2:?Укажи модель, например: ~/switch-model.sh ollama qwen3:32b}"
     cat > "$ENV_FILE" << EOF
 ANTHROPIC_AUTH_TOKEN=ollama
-ANTHROPIC_BASE_URL=http://host.docker.internal:11434
+ANTHROPIC_BASE_URL=http://ollama:11434
 ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${MODEL}
@@ -187,7 +187,7 @@ EOF
     echo ""
     echo "  ✓ Режим: Ollama напрямую (Anthropic compat)"
     echo "  Модель: ${MODEL}"
-    echo "  Claude Code → host.docker.internal:11434"
+    echo "  Claude Code → ollama:11434"
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
