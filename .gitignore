@@ -23,3 +23,11 @@ Thumbs.db
 
 # Claude Code local state
 .claude/
+
+# Python
+__pycache__/
+*.pyc
+
+# Temp/logs
+*.log
+*.tmp
