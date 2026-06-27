@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Язык общения
+
+Всегда отвечай по-русски. Все пояснения, комментарии, диалог — на русском языке.
+
 ## Project overview
 
 Course materials for "Claude Code: суперсила для НЕпрограммистов" (Season 1) by Automatica. A 5-session Russian-language intensive (Feb 24 — Mar 9, 2026) teaching non-developers to use Claude Code for everyday work automation.
@@ -10,30 +14,24 @@ Instructor: Антон Вдовиченко, CEO Automatica (@codegeek).
 
 ## Repository structure
 
-- `course-outline.md` — detailed 5-session lesson plans (PART 1) + landing page copy (PART 2)
-- `landing-page.md` — **source of truth** for marketing copy (finalized version)
-- `timepad.md` — Timepad event listing (synced with landing-page.md)
+- `course-outline.md` — detailed 5-session lesson plans
+- `README.md` — project overview
 - `assets/` — supplementary materials:
-  - `humanizer.md` — writing style guide for removing AI-generated text patterns (used to humanize course copy)
-  - `automatica-io-n8n-automation-2-0.pdf` — landing page from a previous Automatica course (n8n 2.0, Dec 2025), used as design/structure reference
+  - `knowledge-base/` — reference files for demos (e.g. invoice-kb.md)
+  - `prompts/` — reusable prompt files for session demos
 - `sessions/` — organized by session number (`01-setup/` through `05-agent-teams/`), each containing `demo/` subdirectories with self-contained project examples (28 demos total)
-- `.claude/skills/` — 16 reusable skills (document generation, design, MCP building, etc.)
-
-## Content hierarchy
-
-- `landing-page.md` is the canonical marketing copy — always defer to it
-- `timepad.md` mirrors landing-page.md with minor platform-specific tweaks
-- `course-outline.md` PART 2 may lag behind — if in doubt, landing-page.md wins
+- `.claude/skills/` — 24 reusable skills (document generation, design, MCP building, etc.)
 
 ## Session demos
 
-Each session folder (`sessions/01-setup/` etc.) contains a `demo/` directory with multiple self-contained example projects. Demos are practical business scenarios: financial dashboards, CRM cleanup, contract comparison, vendor evaluation, SEO audits, NPS analysis, cold outreach personalization, and more. Some demos include their own `.claude/` config (commands, settings) as teaching examples — see `sessions/04-agents/demo/slash-commands-and-hooks/` for an example.
+Each session folder (`sessions/01-setup/` etc.) contains a `demo/` directory with multiple self-contained example projects. Demos are practical business scenarios: financial dashboards, CRM cleanup, contract comparison, vendor evaluation, SEO audits, NPS analysis, cold outreach
+personalization, and more. Some demos include their own `.claude/` config (commands, settings) as teaching examples — see `sessions/04-agents/demo/slash-commands-and-hooks/` for an example.
 
 ## Language and writing rules
 
 All content is in Russian. When generating or editing text for this project:
 
-1. Apply the humanizer guide (`assets/humanizer.md`) — avoid AI-isms listed there (inflated significance, promotional language, rule-of-three, em dash overuse, sycophantic tone, filler phrases, etc.)
+1. Avoid AI-isms: inflated significance, promotional language, rule-of-three, em dash overuse, sycophantic tone, filler phrases
 2. Use specific details over vague claims
 3. Vary sentence structure naturally
 4. Keep a conversational but competent tone — not corporate, not overly casual
@@ -49,7 +47,45 @@ All content is in Russian. When generating or editing text for this project:
 
 ## Key context
 
-- The course uses GLM-5 as the primary AI provider (included in course price), with Claude Pro/Max and alternatives (Kimi, OpenRouter) as options
-- Target audience: entrepreneurs, managers, analysts, marketers — no programming experience required
-- The previous Automatica course (n8n 2.0) PDF serves as a template for landing page structure and visual style
-- Pricing: 29,000 ₽ early bird / 39,000 ₽ regular / 49,000 ₽ corporate
+- This repository serves as a working base for real projects, not just course materials
+- Session demos are practical templates — adapt them for actual business tasks
+- Skills in `.claude/skills/` are ready to use in any project within this environment
+- Primary AI provider: GLM-5 (via api.z.ai), with Claude and Ollama as alternatives
+
+## Environment knowledge base
+
+This container has access to a full Docker host infrastructure. Persistent knowledge files in `.claude/memory/`:
+
+- **`environment.md`** — Docker host inventory: containers, network topology, filesystem layout, CLI tools
+- **`plane.md`** — Plane v1.3.0 self-hosted: MCP access, 13-container architecture, current projects, skills (lesson-tasks, lesson-cleanup, plane-hybrid), and limitations
+- **`network.md`** — network topology: split-tunnel VPN (NL + RF), Telegram webhook routing
+
+All three files are on the persistent volume and survive container rebuilds.
+
+## Помощники-агенты
+
+В сети `localai_default` есть агенты-помощники. Делегировать задачи можно **Гусю (Goose, контейнер `goose`)** и **Пи (Pi, контейнер `pi`)**. **MiMo** (`mimocode`) — помнить, что существует, но без отдельного разрешения пользователя не использовать.
+
+Правила:
+
+- В каждую задачу помощнику вкладывается: **изменения в системе — только с разрешения пользователя** (читать и искать свободно).
+- Запускать помощника **фоновым shell** (`run_in_background: true`), чтобы оставаться на связи с пользователем во время работы агента.
+- Тяжёлые локальные задачи — по одной во времени (общий GPU-пул).
+
+Полная инструкция: `agent-second-brain/agent-helpers.md`. Краткая памятка в памяти: `agent-helpers-control`.
+
+## Синхронизация файлов для других агентов
+
+При любом изменении файлов в `course/.claude/` (memory или skills) — обязательно копировать обновлённые файлы в зеркало на хосте:
+
+/home/coder/course/.claude/               → первоисточник
+/home/coder/workspace/copy_md_from_cloud/.claude/  → зеркало (доступно другим агентам на хосте)
+
+Копировать с сохранением структуры папок. Пример:
+
+```bash
+cp -r /home/coder/course/.claude/skills /home/coder/workspace/copy_md_from_cloud/.claude/skills
+cp /home/coder/course/.claude/memory/plane.md /home/coder/workspace/copy_md_from_cloud/.claude/memory/plane.md
+```
+
+Это гарантирует, что другие агенты (goose и т.д.) видят актуальные версии файлов.
