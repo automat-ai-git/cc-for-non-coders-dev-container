@@ -78,14 +78,17 @@ All three files are on the persistent volume and survive container rebuilds.
 
 При любом изменении файлов в `course/.claude/` (memory или skills) — обязательно копировать обновлённые файлы в зеркало на хосте:
 
-/home/coder/course/.claude/               → первоисточник
-/home/coder/workspace/copy_md_from_cloud/.claude/  → зеркало (доступно другим агентам на хосте)
+/home/coder/course/.claude/memory/  → первоисточник памяти
+/home/coder/workspace/agents/memory/claude/  → зеркало памяти (доступно другим агентам)
+
+/home/coder/course/.claude/skills/  → первоисточник скиллов
+/home/coder/workspace/agents/skills/claude/  → зеркало скиллов (доступно другим агентам)
 
 Копировать с сохранением структуры папок. Пример:
 
 ```bash
-cp -r /home/coder/course/.claude/skills /home/coder/workspace/copy_md_from_cloud/.claude/skills
-cp /home/coder/course/.claude/memory/plane.md /home/coder/workspace/copy_md_from_cloud/.claude/memory/plane.md
+cp -r /home/coder/course/.claude/skills/. /home/coder/workspace/agents/skills/claude/
+cp /home/coder/course/.claude/memory/plane.md /home/coder/workspace/agents/memory/claude/plane.md
 ```
 
 Это гарантирует, что другие агенты (goose и т.д.) видят актуальные версии файлов.
