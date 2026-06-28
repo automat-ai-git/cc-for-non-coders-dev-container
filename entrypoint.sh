@@ -182,11 +182,13 @@ ANTHROPIC_BASE_URL=http://ollama:11434
 ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${MODEL}
+ANTHROPIC_MAX_CONTEXT_WINDOW=131072
 API_TIMEOUT_MS=3000000
 EOF
     echo ""
     echo "  ✓ Режим: Ollama напрямую (Anthropic compat)"
     echo "  Модель: ${MODEL}"
+    echo "  Контекст: 128k токенов"
     echo "  Claude Code → ollama:11434"
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
@@ -200,11 +202,13 @@ ANTHROPIC_BASE_URL=http://lmstudio-host:8080
 ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${MODEL}
+ANTHROPIC_MAX_CONTEXT_WINDOW=262144
 API_TIMEOUT_MS=3000000
 EOF
     echo ""
     echo "  ✓ Режим: LM Studio напрямую (Anthropic compat)"
     echo "  Модель: ${MODEL}"
+    echo "  Контекст: 262k токенов"
     echo "  Claude Code → lmstudio-host:8080"
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
