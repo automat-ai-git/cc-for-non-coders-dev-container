@@ -22,6 +22,7 @@ services:
       - API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
       - ANTHROPIC_AUTH_TOKEN_BACKUP=${GLM_API_KEY_BACKUP:-}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}
+      - LMSTUDIO_URL=${LMSTUDIO_URL:-http://lmstudio:8080}
       - SEARXNG_URL=${SEARXNG_URL:-}
       - PLANE_API_KEY=${PLANE_API_KEY:-}
       - PLANE_WORKSPACE_SLUG=${PLANE_WORKSPACE_SLUG:-}
@@ -31,10 +32,10 @@ services:
     volumes:
       - ./student-data:/home/coder/course
       - ./claude-config:/home/coder/.claude
-      - ${HOME}:/home/coder/home:ro
-      - ${HOME}/workspace:/home/coder/workspace
+      - ${HOST_HOME}:/home/coder/home:ro
+      - ${HOST_HOME}/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
-      - /path/to/meeting-data:/meeting-data:ro
+      - ${MEETING_DATA_DIR:-./meeting-data}:/meeting-data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

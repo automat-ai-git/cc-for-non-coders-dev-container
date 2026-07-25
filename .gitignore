@@ -6,6 +6,7 @@
 # Данные контейнера — хранятся локально
 student-data/
 claude-config/
+meeting-data/
 
 # Docker override
 docker-compose.override.yml
