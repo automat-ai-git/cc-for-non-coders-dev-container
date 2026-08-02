@@ -30,12 +30,15 @@ services:
     ports:
       - "8989:8080"
     volumes:
-      - ./student-data:/home/coder/course
-      - ./claude-config:/home/coder/.claude
+      # Абсолютные пути, привязанные к ${HOST_HOME}, а НЕ относительные ./ —
+      # иначе при пересоздании контейнера из чужого cwd (через агента-мост)
+      # docker создаёт фантомные пустые папки, и навыки/состояние в .claude теряются.
+      - ${HOST_HOME}/cc-for-non-coders-dev-container/student-data:/home/coder/course
+      - ${HOST_HOME}/cc-for-non-coders-dev-container/claude-config:/home/coder/.claude
       - ${HOST_HOME}:/home/coder/home:ro
       - ${HOST_HOME}/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${MEETING_DATA_DIR:-./meeting-data}:/meeting-data:ro
+      - ${MEETING_DATA_DIR:-${HOST_HOME}/cc-for-non-coders-dev-container/meeting-data}:/meeting-data:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
