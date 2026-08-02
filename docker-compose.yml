@@ -13,6 +13,10 @@ services:
       - "${DOCKER_GID:-1001}"
       - "2000"
     environment:
+      # Пробрасываем HOST_HOME внутрь: контейнер имеет docker.sock и может
+      # порождать sibling-контейнеры — агенту нужен host-путь для трансляции
+      # bind-маунтов (их интерпретирует хостовый демон, не ФС контейнера).
+      - HOST_HOME=${HOST_HOME}
       - PASSWORD=${PASSWORD:-student-2026}
       - ANTHROPIC_AUTH_TOKEN=${GLM_API_KEY:-}
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
