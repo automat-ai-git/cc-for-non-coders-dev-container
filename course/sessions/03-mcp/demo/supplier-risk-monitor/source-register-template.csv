@@ -1,0 +1,2 @@
+supplier;claim;event_date;published_at;url;source_type;checked_at;status
+[название];[проверяемое утверждение];[YYYY-MM-DD или unknown];[YYYY-MM-DD];[прямой URL];[status|security|legal|privacy|release];[ISO datetime];[confirmed|needs_review]

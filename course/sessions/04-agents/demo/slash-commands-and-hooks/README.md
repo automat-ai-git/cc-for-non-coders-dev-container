@@ -20,6 +20,10 @@ slash-commands-and-hooks/
 |   +-- commands/
 |   |   +-- weekly-report.md      <-- slash-команда /weekly-report
 |   |   +-- client-brief.md       <-- slash-команда /client-brief
+|   +-- hooks/
+|   |   +-- block-dangerous.sh
+|   |   +-- csv-summary.sh
+|   |   +-- notify.sh
 |   +-- settings.json             <-- конфигурация hooks
 +-- README.md
 ```
@@ -88,7 +92,9 @@ B2B: 6 120 000 (47.5% от общей), рост третий месяц под�
 
 ### Что объясняем
 
-Hooks — автоматические действия, которые Claude Code выполняет при определённых событиях. Настраиваются в `.claude/settings.json` (проектный уровень) или через `/hooks` в интерактивном режиме.
+Hooks — автоматические действия, которые Claude Code выполняет при определённых событиях. Настраиваются в `.claude/settings.json`. Команда `/hooks` показывает загруженные hooks и их источник, но не редактирует конфигурацию.
+
+Скрипты примера используют `jq` для чтения JSON из stdin. Перед демо проверьте `jq --version`.
 
 ### Типы хуков
 
@@ -106,11 +112,11 @@ Hooks — автоматические действия, которые Claude C
   "matcher": "Bash",
   "hooks": [{
     "type": "command",
-    "command": "if echo \"$CC_TOOL_INPUT_COMMAND\" | grep -qE 'rm\\s+-rf|sudo|chmod 777'; then echo 'BLOCK: опасная команда заблокирована'; exit 1; fi"
+    "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh\""
   }]
 }
 ```
-Перед выполнением любой bash-команды проверяет, нет ли в ней `rm -rf`, `sudo` или `chmod 777`. Если есть — блокирует.
+Скрипт читает `.tool_input.command` из JSON через stdin. Если находит `rm -rf`, `sudo` или `chmod 777`, пишет причину в stderr и завершает работу с кодом 2 — только этот код блокирует `PreToolUse`.
 
 **2. Проверка CSV после записи (PostToolUse)**
 ```json
@@ -118,11 +124,11 @@ Hooks — автоматические действия, которые Claude C
   "matcher": "Write|Edit",
   "hooks": [{
     "type": "command",
-    "command": "if echo \"$CC_TOOL_RESULT_FILE_PATH\" | grep -q '\\.csv$'; then head -1 \"$CC_TOOL_RESULT_FILE_PATH\" | awk -F',' '{print \"CSV: \" NF \" columns\"}'; fi"
+    "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/csv-summary.sh\""
   }]
 }
 ```
-После записи или редактирования файла проверяет: если это CSV, выводит количество столбцов. Простая валидация.
+После записи или редактирования файла скрипт читает `.tool_input.file_path`, определяет разделитель `,` или `;` и возвращает Claude количество столбцов.
 
 **3. Системное уведомление (Notification)**
 
@@ -131,28 +137,18 @@ macOS:
 {
   "hooks": [{
     "type": "command",
-    "command": "osascript -e 'display notification \"$CC_NOTIFICATION_MESSAGE\" with title \"Claude Code\"'"
+    "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\""
   }]
 }
 ```
 
-Linux (альтернатива для участников с Linux):
-```json
-{
-  "hooks": [{
-    "type": "command",
-    "command": "notify-send 'Claude Code' \"$CC_NOTIFICATION_MESSAGE\""
-  }]
-}
-```
+Скрипт читает `.title` и `.message` из JSON. На macOS использует `osascript`, на Linux — `notify-send`, если команда установлена.
 
-Когда Claude Code завершает задачу, система покажет уведомление. Полезно, если Claude работает в фоне. В файле settings.json настроен вариант для macOS. Участники с Linux могут заменить `osascript` на `notify-send` (пакет libnotify, обычно предустановлен в Ubuntu/Fedora).
+### Какие данные получает hook
 
-### Переменные окружения для хуков
-
-- `$CC_TOOL_INPUT_COMMAND` — текст команды (для Bash)
-- `$CC_TOOL_RESULT_FILE_PATH` — путь к файлу (для Write/Edit)
-- `$CC_NOTIFICATION_MESSAGE` — текст уведомления
+- События инструментов: `.tool_name`, `.tool_input`, а после выполнения — `.tool_response`.
+- Уведомления: `.title`, `.message`, `.notification_type`.
+- `$CLAUDE_PROJECT_DIR` — стабильный путь к корню проекта для вызова скриптов.
 
 ### Практическое задание для студентов
 
@@ -168,4 +164,4 @@ Linux (альтернатива для участников с Linux):
 
 **Hook блокирует нужные команды.** Например, хук на `rm -rf` заблокирует и `rm -rf temp/` (безобидная очистка). Хуки нужно настраивать аккуратно.
 
-**На Windows/Linux osascript не работает.** Уведомление через osascript — только macOS. На Linux используйте `notify-send` (пример выше). На Windows — `powershell -Command "New-BurntToastNotification -Text 'Claude Code', '$CC_NOTIFICATION_MESSAGE'"` (требует модуль BurntToast).
+**Уведомление не появляется.** На Linux установите `notify-send`; на Windows добавьте отдельную ветку PowerShell в `notify.sh`. Остальные hooks продолжат работать.

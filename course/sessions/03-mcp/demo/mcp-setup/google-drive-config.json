@@ -1,13 +1,11 @@
 {
   "mcpServers": {
-    "gdrive": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-gdrive"
-      ],
-      "env": {
-        "GDRIVE_CREDENTIALS_PATH": "/path/to/.gdrive-server-credentials.json"
+    "gdrive-preview": {
+      "type": "http",
+      "url": "https://drivemcp.googleapis.com/mcp/v1",
+      "headers": {
+        "Authorization": "Bearer ${GOOGLE_OAUTH_ACCESS_TOKEN}",
+        "x-goog-user-project": "${GOOGLE_CLOUD_PROJECT}"
       }
     }
   }

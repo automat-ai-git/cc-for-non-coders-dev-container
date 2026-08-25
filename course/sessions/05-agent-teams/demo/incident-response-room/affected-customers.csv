@@ -1,0 +1,28 @@
+customer_id;customer;plan;active_users;monthly_revenue_rub;export_error;filters_damaged;support_contacted;account_owner
+C-001;Альфа Логистик;enterprise;420;680000;yes;yes;yes;Ирина
+C-002;Нева Ритейл;business;85;145000;yes;no;yes;Максим
+C-003;ПромЭнерго;enterprise;310;520000;yes;no;yes;Олег
+C-004;МедСнаб;business;64;118000;yes;no;no;Ирина
+C-005;СеверСтрой;enterprise;270;460000;yes;yes;yes;Максим
+C-006;Орбита Фуд;business;92;172000;yes;no;yes;Олег
+C-007;ТехноДом;enterprise;350;610000;yes;no;yes;Ирина
+C-008;ФармЛайн;business;78;138000;yes;no;no;Олег
+C-009;ДатаПро;enterprise;190;390000;yes;yes;yes;Максим
+C-010;ГрандСервис;starter;18;29000;yes;no;no;Ирина
+C-011;Вектор Медиа;business;56;96000;yes;no;yes;Олег
+C-012;СтройИнвест;enterprise;230;440000;yes;no;yes;Максим
+C-013;НордТранс;business;70;125000;yes;no;no;Ирина
+C-014;АгроЛайн;starter;22;34000;yes;no;no;Олег
+C-015;КиберТех;business;105;188000;yes;no;yes;Максим
+C-016;ПрофМаркет;business;49;84000;yes;no;no;Ирина
+C-017;Ритейл Плюс;enterprise;285;490000;yes;yes;yes;Олег
+C-018;ФинансАвто;business;61;112000;yes;no;yes;Максим
+C-019;МедиаЛаб;starter;16;26000;yes;no;no;Ирина
+C-020;ИнноТех;business;98;176000;yes;no;yes;Олег
+C-021;БрендСервис;business;72;129000;yes;no;no;Максим
+C-022;СитиИнвест;starter;20;31000;yes;no;no;Ирина
+C-023;Альянс Групп;business;88;158000;yes;no;yes;Олег
+C-024;ТрансСервис;starter;14;24000;yes;no;no;Максим
+C-025;ЭкоПром;business;67;121000;yes;no;no;Ирина
+C-026;Логос;starter;25;38000;yes;no;yes;Олег
+C-027;Смарт Солюшнс;business;76;136000;yes;no;no;Максим

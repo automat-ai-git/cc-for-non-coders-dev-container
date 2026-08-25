@@ -1,5 +1,7 @@
 # Environment (may contain API keys)
 .env
 
-# macOS
+# macOS / Python junk
 .DS_Store
+__pycache__/
+*.pyc

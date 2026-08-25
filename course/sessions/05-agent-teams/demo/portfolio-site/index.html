@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Формат — консалтинг для среднего бизнеса</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #1e293b;
+      line-height: 1.6;
+      background: #fff;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ===== Container ===== */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== Navigation ===== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a365d;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #475569;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #2563eb;
+    }
+
+    /* ===== Section defaults ===== */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a365d;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: #64748b;
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      padding: 160px 0 100px;
+      background: linear-gradient(135deg, #1a365d 0%, #1e40af 100%);
+      color: #fff;
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1.15;
+      max-width: 720px;
+      margin-bottom: 24px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      max-width: 640px;
+      color: #cbd5e1;
+      margin-bottom: 40px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    /* ===== Services ===== */
+    .services {
+      background: #f8fafc;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .service-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+
+    .service-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .service-card h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a365d;
+      margin-bottom: 12px;
+    }
+
+    .service-card p {
+      font-size: 0.95rem;
+      color: #475569;
+      margin-bottom: 16px;
+      line-height: 1.65;
+    }
+
+    .service-meta {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #2563eb;
+    }
+
+    /* ===== Cases ===== */
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .case-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+      border-top: 3px solid #2563eb;
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+
+    .case-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .case-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1a365d;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .case-metric {
+      display: inline-block;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .case-card p {
+      font-size: 0.9rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    /* ===== About ===== */
+    .about {
+      background: #f8fafc;
+    }
+
+    .about-text {
+      font-size: 1.1rem;
+      color: #475569;
+      max-width: 720px;
+      line-height: 1.75;
+    }
+
+    /* ===== Contact ===== */
+    .contact {
+      background: linear-gradient(135deg, #1a365d 0%, #1e40af 100%);
+      color: #fff;
+    }
+
+    .contact .section-title {
+      color: #fff;
+    }
+
+    .contact .section-subtitle {
+      color: #cbd5e1;
+      margin-bottom: 40px;
+    }
+
+    /* Contact form base styles (for Agent 3) */
+    .contact-form {
+      max-width: 520px;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 14px 16px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      margin-bottom: 16px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .contact-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .contact-form button {
+      display: inline-block;
+      background: #fff;
+      color: #1a365d;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .contact-form button:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    .contact-form button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .contact-form .error {
+      background: #fef2f2;
+      color: #dc2626;
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .contact-form .success {
+      background: #f0fdf4;
+      color: #16a34a;
+      font-size: 0.95rem;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 48px 0;
+    }
+
+    .footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+    }
+
+    .footer-brand {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .footer-copy {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .footer-contacts {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .footer-contacts a {
+      color: #94a3b8;
+      transition: color 0.2s;
+    }
+
+    .footer-contacts a:hover {
+      color: #fff;
+    }
+
+    .footer-address {
+      font-size: 0.9rem;
+      max-width: 240px;
+      line-height: 1.5;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 120px 0 72px;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+
+      section {
+        padding: 56px 0;
+      }
+
+      .section-title {
+        font-size: 1.6rem;
+      }
+
+      .nav-links {
+        gap: 16px;
+      }
+
+      .nav-links a {
+        font-size: 0.8rem;
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cases-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer .container {
+        flex-direction: column;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container">
+      <a href="#" class="nav-logo">Формат</a>
+      <ul class="nav-links">
+        <li><a href="#services">Услуги</a></li>
+        <li><a href="#cases">Кейсы</a></li>
+        <li><a href="#about">О компании</a></li>
+        <li><a href="#contact">Контакты</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <h1 class="hero-title">Наводим порядок в процессах среднего бизнеса</h1>
+      <p class="hero-subtitle">С 2018 года помогаем компаниям от 10 до 150 человек разобраться, где теряются деньги и время. 14 консультантов и аналитиков, 6 отраслей, результаты вроде сокращения просрочек с 30% до 8% и роста конверсии продаж в 1,7 раза.</p>
+      <a href="#contact" class="btn-primary">Обсудить проект</a>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="services" id="services">
+    <div class="container">
+      <h2 class="section-title">Услуги</h2>
+      <p class="section-subtitle">Работаем с процессами, продажами и управлением — от диагностики до внедрения.</p>
+      <div class="services-grid">
+
+        <div class="service-card">
+          <h3>Аудит бизнес-процессов</h3>
+          <p>Разбираем каждый шаг от заявки клиента до закрытия сделки. Интервью с сотрудниками, карта процессов, расчёт потерь и список рекомендаций с приоритетами.</p>
+          <div class="service-meta">Срок: 3-4 недели &middot; от 450 000 &#8381;</div>
+        </div>
+
+        <div class="service-card">
+          <h3>Внедрение CRM и автоматизация продаж</h3>
+          <p>Подбираем CRM под ваш цикл продаж, переносим данные, настраиваем воронки и интеграции. Отдельно обучаем менеджеров и руководителей — не бросаем после установки.</p>
+          <div class="service-meta">Срок: 4-6 недель &middot; от 350 000 &#8381;</div>
+        </div>
+
+        <div class="service-card">
+          <h3>Построение отдела продаж</h3>
+          <p>Для тех, кто вырос из стадии «основатель продаёт сам». Регламенты, скрипты, система мотивации, найм первых менеджеров и сопровождение на старте.</p>
+          <div class="service-meta">Срок: 6-8 недель &middot; от 600 000 &#8381;</div>
+        </div>
+
+        <div class="service-card">
+          <h3>Стратегические сессии</h3>
+          <p>Рабочие сессии для управленческих команд: стратегия, запуск продукта, выход из кризиса. Подготовка, модерация 4-8 часов, фиксация решений. Через месяц — контрольная встреча.</p>
+          <div class="service-meta">Формат: очно в Москве или онлайн &middot; от 180 000 &#8381;</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Cases -->
+  <section class="cases" id="cases">
+    <div class="container">
+      <h2 class="section-title">Кейсы</h2>
+      <p class="section-subtitle">Конкретные результаты в цифрах.</p>
+      <div class="cases-grid">
+
+        <div class="case-card">
+          <h3>Конверсия продаж выросла с 11% до 19%</h3>
+          <div class="case-metric">Конверсия: 11% &rarr; 19%, цикл сделки: 23 &rarr; 16 дней</div>
+          <p>Дистрибьютор электроники, 8 менеджеров, все вели клиентов в Excel. Провели аудит, внедрили amoCRM с тремя воронками, подключили телефонию и 1С. Руководитель впервые увидел реальную загрузку команды.</p>
+        </div>
+
+        <div class="case-card">
+          <h3>Неявки в клиниках упали с 18% до 7%</h3>
+          <div class="case-metric">No-show: 18% &rarr; 7%, 34% записей без администратора</div>
+          <p>Сеть из 7 стоматологий, каждая работала по-своему. Унифицировали стандарты, поставили единую CRM с записью и автоматическими напоминаниями. Администраторы освободили по 15 часов в неделю на клинику.</p>
+        </div>
+
+        <div class="case-card">
+          <h3>Отдел продаж с нуля: 8 контрактов за 4 месяца</h3>
+          <div class="case-metric">12 встреч в неделю вместо 2-3, 8 контрактов на 14,5 млн &#8381;</div>
+          <p>IT-компания продавала только через сарафан. Описали цикл продаж, написали скрипты, настроили CRM, наняли и обучили трёх менеджеров. За 4 месяца отдел вышел на стабильный поток сделок.</p>
+        </div>
+
+        <div class="case-card">
+          <h3>Просроченные заказы: с 30% до 8%</h3>
+          <div class="case-metric">Просрочки: 30% &rarr; 8%, обработка заказа: 2 дня &rarr; 4 часа</div>
+          <p>Мебельное производство, 60 человек, процессы остались от времён, когда было 10. Нашли 4 точки потери информации между отделами, перестроили процесс и внедрили систему управления заказами. Основатель вышел из операционки.</p>
+        </div>
+
+        <div class="case-card">
+          <h3>NPS клиентов агентства: с 32 до 58</h3>
+          <div class="case-metric">NPS: 32 &rarr; 58, срывы дедлайнов: 25% &rarr; 6%, текучка: 40% &rarr; 10%</div>
+          <p>Маркетинговое агентство, 25 человек, 40+ проектов одновременно. Задачи терялись между Trello, Telegram и Google Docs. Провели стратсессию, выделили 5 типов проектов, внедрили единую систему и разделили роли аккаунтов и проджектов.</p>
+        </div>
+
+        <div class="case-card">
+          <h3>Обработка заявки: 40 секунд вместо 12 минут</h3>
+          <div class="case-metric">Время обработки: 12 мин &rarr; 40 сек, потерянных заявок: 0 за 4 мес.</div>
+          <p>Логистическая компания, 150 заявок в день, всё вручную. Автоматизировали стандартный поток: форма, расчёт, подтверждение по SMS, карточка в CRM. Операторы занялись нестандартными грузами и допродажами.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="container">
+      <h2 class="section-title">О компании</h2>
+      <p class="about-text">«Формат» работает с 2018 года. В команде 14 человек: консультанты, аналитики и проджект-менеджеры. Работаем со средним бизнесом — от производства до IT. Не рисуем стратегии в вакууме: разбираемся в реальных процессах, находим конкретные проблемы и доводим решение до результата.</p>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <h2 class="section-title">Расскажите, что тормозит рост</h2>
+      <p class="section-subtitle">Оставьте заявку — проведём бесплатную 30-минутную консультацию. Разберёмся, есть ли задача, с которой мы можем помочь, и сколько это будет стоить.</p>
+      <div id="contact-form" class="contact-form">
+        <form id="feedback-form" novalidate>
+          <input type="text" id="field-name" name="name" placeholder="Ваше имя">
+          <div id="error-name" class="error" style="display:none;">Укажите имя</div>
+
+          <input type="email" id="field-email" name="email" placeholder="Email">
+          <div id="error-email" class="error" style="display:none;"></div>
+
+          <input type="tel" id="field-phone" name="phone" placeholder="Телефон">
+          <div id="error-contact" class="error" style="display:none;">Укажите email или телефон</div>
+
+          <textarea id="field-message" name="message" placeholder="Ваше сообщение"></textarea>
+          <div id="error-message" class="error" style="display:none;">Сообщение должно быть не короче 10 символов</div>
+
+          <button type="submit">Отправить заявку</button>
+
+          <div id="form-success" class="success" style="display:none;">Спасибо! Мы свяжемся с вами в течение рабочего дня.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div>
+        <div class="footer-brand">Формат</div>
+        <div class="footer-copy">&copy; 2018-2026 ООО «Формат»</div>
+      </div>
+      <ul class="footer-contacts">
+        <li><a href="tel:+74957890123">+7 (495) 789-01-23</a></li>
+        <li><a href="mailto:hello@format-consulting.ru">hello@format-consulting.ru</a></li>
+        <li><a href="https://t.me/format_consult" target="_blank" rel="noopener">Telegram: @format_consult</a></li>
+      </ul>
+      <div class="footer-address">Москва, ул. Большая Ордынка, д. 40, офис 512</div>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      var form = document.getElementById('feedback-form');
+
+      var fieldName = document.getElementById('field-name');
+      var fieldEmail = document.getElementById('field-email');
+      var fieldPhone = document.getElementById('field-phone');
+      var fieldMessage = document.getElementById('field-message');
+
+      var errorName = document.getElementById('error-name');
+      var errorEmail = document.getElementById('error-email');
+      var errorContact = document.getElementById('error-contact');
+      var errorMessage = document.getElementById('error-message');
+      var formSuccess = document.getElementById('form-success');
+
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      function hideAllErrors() {
+        errorName.style.display = 'none';
+        errorEmail.style.display = 'none';
+        errorContact.style.display = 'none';
+        errorMessage.style.display = 'none';
+        formSuccess.style.display = 'none';
+      }
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        hideAllErrors();
+
+        var isValid = true;
+
+        var nameVal = fieldName.value.trim();
+        var emailVal = fieldEmail.value.trim();
+        var phoneVal = fieldPhone.value.trim();
+        var messageVal = fieldMessage.value.trim();
+
+        // Validate name
+        if (!nameVal) {
+          errorName.style.display = 'block';
+          isValid = false;
+        }
+
+        // Validate contact: at least one of email or phone
+        var hasEmail = emailVal.length > 0;
+        var hasPhone = phoneVal.length > 0;
+
+        if (!hasEmail && !hasPhone) {
+          errorContact.style.display = 'block';
+          isValid = false;
+        }
+
+        // Validate email format if provided
+        if (hasEmail && !emailRegex.test(emailVal)) {
+          errorEmail.textContent = 'Некорректный email';
+          errorEmail.style.display = 'block';
+          isValid = false;
+        }
+
+        // Validate message
+        if (!messageVal || messageVal.length < 10) {
+          errorMessage.style.display = 'block';
+          isValid = false;
+        }
+
+        if (isValid) {
+          formSuccess.style.display = 'block';
+          form.reset();
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
