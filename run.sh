@@ -28,7 +28,9 @@ echo ""
 echo "=== Готово! ==="
 echo ""
 echo "  Портал:       http://localhost:8080  (пароль из .env)"
-echo "  Пароль:       $(grep '^PASSWORD=' "$SCRIPT_DIR/.env" 2>/dev/null | cut -d= -f2 || echo 'test123')"
+# Фолбэк должен совпадать с дефолтом PASSWORD в docker-compose.yml, иначе без .env
+# скрипт называет пароль, которого у контейнера нет.
+echo "  Пароль:       $(grep '^PASSWORD=' "$SCRIPT_DIR/.env" 2>/dev/null | cut -d= -f2 || echo 'student-2026')"
 echo ""
 echo "  Остановка:            docker compose down"
 echo "  Остановка + удаление: docker compose down -v"
