@@ -1,10 +1,14 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
-ARG CODE_SERVER_VERSION=4.133.0
+ARG CODE_SERVER_VERSION=4.134.0
+# Node 24 ("Krypton") is the current LTS. Node 26 exists but only becomes LTS in
+# October 2026 — don't move the cohort onto it before then.
 ARG NODE_VERSION=24
 # Pinned: an unpinned install silently moves the whole cohort to a new Claude Code
 # on every rebuild. Bump deliberately, then rebuild and smoke-test one container.
-ARG CLAUDE_CODE_VERSION=2.1.238
+ARG CLAUDE_CODE_VERSION=2.1.241
+# Same reasoning — the upstream installer always grabs the newest release.
+ARG FILEBROWSER_VERSION=2.63.23
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
@@ -48,8 +52,13 @@ RUN mkdir -p /etc/apt/keyrings \
 # code-server (VS Code in browser)
 RUN curl -fsSL https://code-server.dev/install.sh | sh -s -- --version=${CODE_SERVER_VERSION}
 
-# File Browser — lightweight web file manager for demos
-RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
+# File Browser — lightweight web file manager for demos.
+# Installed from the release tarball rather than get.sh, which always takes the
+# newest release. TARGETARCH is supplied by BuildKit (amd64 on the VPS, arm64 on Macs).
+ARG TARGETARCH
+RUN curl -fsSL "https://github.com/filebrowser/filebrowser/releases/download/v${FILEBROWSER_VERSION}/linux-${TARGETARCH}-filebrowser.tar.gz" \
+    | tar -xz -C /usr/local/bin filebrowser \
+    && chmod +x /usr/local/bin/filebrowser
 
 # Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
@@ -158,8 +167,8 @@ ENV NODE_PATH="/usr/lib/node_modules"
 ENV PASSWORD=""
 ENV ANTHROPIC_AUTH_TOKEN=""
 ENV ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
-ENV ANTHROPIC_DEFAULT_OPUS_MODEL="GLM-5.2"
-ENV ANTHROPIC_DEFAULT_SONNET_MODEL="GLM-5.2"
+ENV ANTHROPIC_DEFAULT_OPUS_MODEL="GLM-5.3"
+ENV ANTHROPIC_DEFAULT_SONNET_MODEL="GLM-5.3"
 # Haiku slot carries background work (session titles, small classifications), so it
 # stays on the cheap model. z.ai currently serves GLM-4.5-Air requests with glm-4.7.
 ENV ANTHROPIC_DEFAULT_HAIKU_MODEL="GLM-4.5-Air"

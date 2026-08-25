@@ -28,9 +28,15 @@ Markdown и всё остальное на webview.
 - **Python-библиотеки** — pandas, matplotlib, pdfplumber, reportlab, openpyxl и др.
 - **33 демо-проекта** — готовые примеры по всем 5 сессиям курса.
 
-База — Ubuntu 24.04, Node.js 24. Модели по умолчанию — GLM-5.2 (Opus/Sonnet) и GLM-4.5-Air (Haiku)
-через `ANTHROPIC_BASE_URL` z.ai. Agent Teams (сессия 5) включены на уровне образа
+База — Ubuntu 26.04 LTS, Node.js 24 (текущий LTS; Node 26 станет LTS только в октябре 2026).
+Модели по умолчанию — GLM-5.3 (Opus/Sonnet) и GLM-4.5-Air (Haiku) через `ANTHROPIC_BASE_URL` z.ai.
+z.ai подменяет модели на лету: имена `GLM-5.2` и `GLM-5.1` тоже обслуживает glm-5.3, а
+`GLM-4.5-Air` — glm-4.7. Agent Teams (сессия 5) включены на уровне образа
 (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) — без этого команда агентов не создаётся.
+
+Версии code-server, Claude Code и File Browser закреплены в `Dockerfile` через `ARG`. Пины стоят
+намеренно: без них пересборка молча переводит весь поток на новый релиз. Поднимать осознанно и
+проверять на одном контейнере.
 
 ### Архитектура
 
@@ -110,7 +116,7 @@ docker compose logs -f
 ## Структура файлов
 
 ```
-├── Dockerfile              # Сборка образа: Ubuntu 24.04, Node 24, все зависимости
+├── Dockerfile              # Сборка образа: Ubuntu 26.04, Node 24, все зависимости
 ├── docker-compose.yml      # Один контейнер; build-контекст — корень репозитория
 ├── run.sh                  # Сборка и запуск одной командой
 ├── entrypoint.sh           # Запуск сервисов, настройка Claude Code, копирование материалов
