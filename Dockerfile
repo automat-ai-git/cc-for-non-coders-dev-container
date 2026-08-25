@@ -104,9 +104,14 @@ RUN git config --global user.name "Course Student" \
     && git config --global user.email "student@course.local" \
     && git config --global init.defaultBranch main
 
-# VS Code extensions: preview HTML, PDF, Excel, images inside the editor
+# VS Code extensions: preview HTML, PDF, Excel, images inside the editor.
+# PDF viewer is mathematic.vscode-pdf, NOT the more popular tomoki1207.pdf:
+# the latter pins "extensionKind": ["ui"] and ships only a Node entry point, so in
+# code-server it installs fine and then never loads — there is no local desktop
+# extension host, and PDFs silently open as raw text. Before swapping any extension
+# here, check its manifest: kind ["ui"] without a "browser" entry point will not run.
 RUN code-server --install-extension ms-vscode.live-server \
-    && code-server --install-extension tomoki1207.pdf \
+    && code-server --install-extension mathematic.vscode-pdf \
     && code-server --install-extension GrapeCity.gc-excelviewer \
     && code-server --install-extension hediet.vscode-drawio \
     || true
