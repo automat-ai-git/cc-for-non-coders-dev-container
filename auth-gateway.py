@@ -20,11 +20,11 @@ SECRET = hmac.new(b"claude-course-gateway", PASSWORD.encode(), hashlib.sha256).h
 COOKIE_NAME = "cc_session"
 LOGIN_PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "login.html")
 
-BACKENDS = {
-    # (host, port, strip_prefix) — strip_prefix=False keeps path as-is for baseurl-aware backends
-    "/ide/": ("127.0.0.1", 8081, True),
-    "/files/": ("127.0.0.1", 9090, False),
-}
+# Backends. code-server is served at the domain root (no subpath) so its webviews
+# can register their service worker; serving it under a subpath breaks that
+# registration against the webview CSP. File Browser stays on its /files baseurl.
+CODE_SERVER = ("127.0.0.1", 8081)
+FILE_BROWSER = ("127.0.0.1", 9090)
 
 PROXY_HOP_HEADERS = frozenset([
     "connection", "keep-alive", "proxy-authenticate",
@@ -91,6 +91,7 @@ class GatewayHandler(http.server.BaseHTTPRequestHandler):
     def route(self, method):
         path = self.path
 
+        # ---- Gateway-owned endpoints (reserved before the code-server catch-all) ----
         if path == "/healthz":
             self.send_response(200)
             self.end_headers()
@@ -104,40 +105,36 @@ class GatewayHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        if method == "GET" and path in ("/", ""):
-            if self.is_authenticated():
-                self.send_response(302)
-                self.send_header("Location", "/ide/")
-                self.end_headers()
-                return
-            self._serve_login_page()
-            return
-
         if method == "POST" and path == "/login":
             self._handle_login()
             return
 
-        # Proxy routes
-        for prefix, (host, port, strip) in BACKENDS.items():
-            if path.startswith(prefix) or path == prefix.rstrip("/"):
-                if not self.is_authenticated():
-                    self.send_response(302)
-                    self.send_header("Location", "/")
-                    self.end_headers()
-                    return
+        # ---- Auth gate ----
+        if not self.is_authenticated():
+            # A top-level navigation gets the branded login page; anything else
+            # (assets, XHR, WebSocket) is bounced to it so nothing leaks pre-auth.
+            if method in ("GET", "HEAD") and path in ("/", ""):
+                self._serve_login_page()
+            else:
+                self.send_response(302)
+                self.send_header("Location", "/")
+                self.end_headers()
+            return
 
-                # WebSocket upgrade?
-                upgrade = (self.headers.get("Upgrade") or "").lower()
-                if upgrade == "websocket":
-                    self._handle_websocket(host, port, prefix, strip)
-                else:
-                    self._proxy_http(method, host, port, prefix, strip)
-                return
+        # ---- Authenticated: reverse-proxy to backends ----
+        # File Browser keeps its /files baseurl; everything else is code-server,
+        # served at the domain root (no subpath) so its webviews register their
+        # service worker in root scope instead of tripping the webview CSP.
+        if path == "/files" or path.startswith("/files/"):
+            host, port = FILE_BROWSER
+        else:
+            host, port = CODE_SERVER
 
-        # Fallback
-        self.send_response(302)
-        self.send_header("Location", "/")
-        self.end_headers()
+        upgrade = (self.headers.get("Upgrade") or "").lower()
+        if upgrade == "websocket":
+            self._handle_websocket(host, port, "/", strip=False)
+        else:
+            self._proxy_http(method, host, port, "/", strip=False)
 
     do_GET = lambda self: self.route("GET")
     do_POST = lambda self: self.route("POST")
@@ -179,7 +176,7 @@ class GatewayHandler(http.server.BaseHTTPRequestHandler):
                 "Set-Cookie",
                 f"{COOKIE_NAME}={token}; Path=/; HttpOnly; SameSite=Lax",
             )
-            self.send_header("Location", "/ide/")
+            self.send_header("Location", "/")
             self.end_headers()
         else:
             self._serve_login_page(error=True)

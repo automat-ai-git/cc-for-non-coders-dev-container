@@ -1,12 +1,24 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh\""
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$CC_TOOL_RESULT_FILE_PATH\" | grep -q '\\.csv$'; then head -1 \"$CC_TOOL_RESULT_FILE_PATH\" | awk -F',' '{print \"CSV: \" NF \" columns\"}'; fi"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/csv-summary.sh\""
           }
         ]
       }
@@ -16,18 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"$CC_NOTIFICATION_MESSAGE\" with title \"Claude Code\"'"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if echo \"$CC_TOOL_INPUT_COMMAND\" | grep -qE 'rm\\s+-rf|sudo|chmod 777'; then echo 'BLOCK: опасная команда заблокирована'; exit 1; fi"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\""
           }
         ]
       }

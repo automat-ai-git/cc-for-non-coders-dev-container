@@ -12,9 +12,12 @@
 
 set -euo pipefail
 
-# Initialize course directory from image if volume is empty (first run)
-if [ -d /home/coder/.course-image ] && [ ! -f /home/coder/course/.initialized ]; then
-    cp -a /home/coder/.course-image/. /home/coder/course/
+# Синхронизация материалов курса из образа в рабочую папку (bind-mount).
+# --ignore-existing: добавляем ТОЛЬКО новые файлы (новые демо/слайды/навыки сезона 2),
+# НИКОГДА не перезаписывая уже существующие — работа студентов и их правки сохраняются.
+# Идемпотентно: на пустом volume копирует всё (первый запуск), дальше — только новое.
+if [ -d /home/coder/.course-image ]; then
+    rsync -a --ignore-existing /home/coder/.course-image/ /home/coder/course/
     touch /home/coder/course/.initialized
 fi
 
@@ -24,8 +27,8 @@ if [ ! -f /home/coder/.claude/.env ]; then
     cat > /home/coder/.claude/.env << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
 ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
-ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.2}
-ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-5.1}
+ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.3}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-5.2}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.7}
 CLAUDE_CODE_AUTO_COMPACT_WINDOW=
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
@@ -53,18 +56,93 @@ if [ -n "${SEARXNG_URL:-}" ]; then
     echo "✓ SearXNG MCP configured (${SEARXNG_URL})"
 fi
 
-# Helper script to switch API keys (writes to .claude/.env so Claude Code picks it up)
+# ── ВАЖНО: авторский settings.json-мердж НАМЕРЕННО убран ──
+# У автора (GLM-only) ключ и модели пишутся в ~/.claude/settings.json. У нас источник
+# правды для моделей/base_url — ~/.claude/.env (через bashrc: set -a; source .env →
+# process-env → claude). Если зашить ANTHROPIC_BASE_URL и модели в settings.json,
+# они перебьют .env, и switch-model.sh (subscription/glm/ollama/lmstudio) сломается.
+# Поэтому в settings.json моделей НЕТ (см. claude-settings.json), и мердж не запускаем.
+
+# ── Seed ~/.claude.json to bypass first-run dialogs ──
+# Without this, Claude Code blocks on: onboarding, "trust this API key?", and the
+# per-folder "do you trust this folder?" dialog. We pre-accept all of them for the
+# whole course tree so students get a clean, prompt-free first run. This file lives
+# in the container's ephemeral layer, so it is regenerated on every container start.
+set +e
+CLAUDE_VER=$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+[ -z "$CLAUDE_VER" ] && CLAUDE_VER="99.0.0"
+python3 - "$CLAUDE_VER" "${ANTHROPIC_AUTH_TOKEN:-}" "${ANTHROPIC_AUTH_TOKEN_BACKUP:-}" <<'PYEOF'
+import json, os, secrets, sys
+ver, token, token_backup = sys.argv[1], sys.argv[2], sys.argv[3]
+home = "/home/coder"
+
+# Trust every directory in the course tree so no folder-trust prompt appears,
+# wherever a student launches `claude` from.
+trust_dirs = {home}
+course = os.path.join(home, "course")
+if os.path.isdir(course):
+    for root, dirs, _ in os.walk(course):
+        dirs[:] = [d for d in dirs if d not in (".git", "node_modules", ".venv", "__pycache__")]
+        trust_dirs.add(root)
+
+entry = {
+    "hasTrustDialogAccepted": True,
+    "hasClaudeMdExternalIncludesApproved": True,
+    "hasClaudeMdExternalIncludesWarningShown": True,
+    "projectOnboardingSeenCount": 1,
+    "allowedTools": [], "mcpServers": {},
+    "enabledMcpjsonServers": [], "disabledMcpjsonServers": [],
+}
+projects = {d: dict(entry) for d in sorted(trust_dirs)}
+
+# Pre-approve the primary (and backup, if set) API key tails to skip the key-trust prompt.
+approved = []
+for t in (token, token_backup):
+    if t:
+        approved.append(t[-20:] if len(t) > 20 else t)
+
+cj = {
+    "numStartups": 184,
+    "autoUpdaterStatus": "disabled",
+    "userID": secrets.token_hex(32),
+    "hasCompletedOnboarding": True,
+    "hasTrustDialogAccepted": True,
+    "lastOnboardingVersion": ver,
+    "projects": projects,
+    "customApiKeyResponses": {"approved": approved, "rejected": []},
+}
+with open(os.path.join(home, ".claude.json"), "w") as f:
+    json.dump(cj, f, indent=2)
+print(f"[entrypoint] .claude.json seeded: ver={ver}, trusted_dirs={len(projects)}, keys_approved={len(approved)}")
+PYEOF
+set -e
+
+# Helper script to switch API keys. Updates both .claude/.env and
+# .claude/settings.json — settings.json is the file Claude Code actually reads.
 cat > /home/coder/switch-api-key.sh << 'SWITCH'
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
 
+apply_key() {
+    sed -i "s|^ANTHROPIC_AUTH_TOKEN=.*|ANTHROPIC_AUTH_TOKEN=$1|" "$ENV_FILE"
+    python3 - "$1" << 'PY'
+import json, sys
+path = "/home/coder/.claude/settings.json"
+with open(path) as f:
+    settings = json.load(f)
+settings.setdefault("env", {})["ANTHROPIC_AUTH_TOKEN"] = sys.argv[1]
+with open(path, "w") as f:
+    json.dump(settings, f, indent=2)
+PY
+}
+
 if [ "${1:-}" = "backup" ] && [ -n "${ANTHROPIC_AUTH_TOKEN_BACKUP:-}" ]; then
-    sed -i "s|^ANTHROPIC_AUTH_TOKEN=.*|ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN_BACKUP}|" "$ENV_FILE"
-    echo "Switched to BACKUP key in .claude/.env"
+    apply_key "${ANTHROPIC_AUTH_TOKEN_BACKUP}"
+    echo "Switched to BACKUP key"
     echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
 elif [ "${1:-}" = "primary" ] && [ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
-    sed -i "s|^ANTHROPIC_AUTH_TOKEN=.*|ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN}|" "$ENV_FILE"
-    echo "Switched to PRIMARY key in .claude/.env"
+    apply_key "${ANTHROPIC_AUTH_TOKEN}"
+    echo "Switched to PRIMARY key"
     echo "Restart Claude Code (Ctrl+C, then 'claude') to apply."
 else
     echo "Usage: ./switch-api-key.sh [primary|backup]"

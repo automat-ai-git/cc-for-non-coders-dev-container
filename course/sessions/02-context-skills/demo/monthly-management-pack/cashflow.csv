@@ -1,0 +1,13 @@
+operation_id;date;type;category;amount;comment
+CF-001;2026-06-03;in;client_payment;480000;Оплата S-001
+CF-002;2026-06-05;out;payroll;720000;Аванс и зарплата
+CF-003;2026-06-06;in;client_payment;220000;Оплата S-002
+CF-004;2026-06-11;out;contractors;310000;Подрядчики по Atlas и Vega
+CF-005;2026-06-12;in;client_payment;760000;Оплата S-004
+CF-006;2026-06-15;out;rent;185000;Офис за июнь
+CF-007;2026-06-18;in;client_payment;310000;Оплата S-006
+CF-008;2026-06-20;out;software;96000;CRM, аналитика, облако
+CF-009;2026-06-24;in;prepayment;250000;Предоплата за проект июля
+CF-010;2026-06-26;out;tax;280000;Налоги и взносы
+CF-011;2026-06-28;in;client_payment;270000;Оплата S-009
+CF-012;2026-06-30;out;marketing;140000;Конференция и лидогенерация
