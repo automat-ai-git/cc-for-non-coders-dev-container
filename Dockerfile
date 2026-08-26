@@ -1,14 +1,8 @@
 FROM ubuntu:26.04
 
-ARG CODE_SERVER_VERSION=4.134.0
-# Node 24 ("Krypton") is the current LTS. Node 26 exists but only becomes LTS in
-# October 2026 — don't move the cohort onto it before then.
+# Версии НЕ пиним (осознанно): при каждой пересборке подтягиваем свежие релизы.
+# NODE_VERSION задаёт только мажорную ветку LTS для репозитория NodeSource.
 ARG NODE_VERSION=24
-# Pinned: an unpinned install silently moves the whole cohort to a new Claude Code
-# on every rebuild. Bump deliberately, then rebuild and smoke-test one container.
-ARG CLAUDE_CODE_VERSION=2.1.241
-# Same reasoning — the upstream installer always grabs the newest release.
-ARG FILEBROWSER_VERSION=2.63.23
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
@@ -59,16 +53,11 @@ RUN mkdir -p /etc/apt/keyrings \
 # code-server (VS Code in browser) — always latest stable
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-# File Browser — lightweight web file manager for demos.
-# Installed from the release tarball rather than get.sh, which always takes the
-# newest release. TARGETARCH is supplied by BuildKit (amd64 on the VPS, arm64 on Macs).
-ARG TARGETARCH
-RUN curl -fsSL "https://github.com/filebrowser/filebrowser/releases/download/v${FILEBROWSER_VERSION}/linux-${TARGETARCH}-filebrowser.tar.gz" \
-    | tar -xz -C /usr/local/bin filebrowser \
-    && chmod +x /usr/local/bin/filebrowser
+# File Browser — lightweight web file manager for demos (always latest via get.sh)
+RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 
 # Claude Code CLI
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
+RUN npm install -g @anthropic-ai/claude-code
 
 # npm packages used by Skills (docx/pptx generation, web bundling)
 RUN npm install -g docx pptxgenjs parcel @parcel/config-default html-inline mcp-searxng
