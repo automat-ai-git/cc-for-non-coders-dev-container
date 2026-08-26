@@ -13,12 +13,17 @@
 set -euo pipefail
 
 # Синхронизация материалов курса из образа в рабочую папку (bind-mount).
-# --ignore-existing: добавляем ТОЛЬКО новые файлы (новые демо/слайды/навыки сезона 2),
-# НИКОГДА не перезаписывая уже существующие — работа студентов и их правки сохраняются.
-# Идемпотентно: на пустом volume копирует всё (первый запуск), дальше — только новое.
+# --ignore-existing: добавляем только новые файлы, не перезаписывая работу студентов.
+# БЕЗ -a (используем -rlt): НЕ сохраняем owner/group/perms — bind-mount принадлежит
+# хостовому пользователю, контейнерный coder не может chgrp/chmod чужие файлы
+# (иначе rsync → exit 23 → крэш-луп при set -e).
+# Best-effort (2>/dev/null || true): на существующих student-data часть файлов может
+# быть не записана из-за прав на отдельные папки — контейнер всё равно ДОЛЖЕН подняться.
+# Полная доставка материалов сезона 2 в уже существующую student-data делается один раз
+# со стороны ХОСТА (как владелец папки), см. процедуру в доках/README.
 if [ -d /home/coder/.course-image ]; then
-    rsync -a --ignore-existing /home/coder/.course-image/ /home/coder/course/
-    touch /home/coder/course/.initialized
+    rsync -rlt --ignore-existing /home/coder/.course-image/ /home/coder/course/ 2>/dev/null || true
+    touch /home/coder/course/.initialized 2>/dev/null || true
 fi
 
 # Write Claude Code env config (only on first run — volume preserves user's choice)
