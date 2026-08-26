@@ -97,11 +97,16 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin s
 RUN ln -sf /usr/bin/code-server /usr/local/bin/code
 
 # Create user
-# docker GID 1001 matches host — gives coder access to docker.sock without root
-# workspace_users GID 2000 — shared access to ~/workspace across containers (Pi, Goose, MIMO)
-RUN groupadd -g 2000 workspace_users 2>/dev/null || true && \
+# ВАЖНО: coder ДОЛЖЕН иметь uid 1000, чтобы совпадать с хостовым владельцем bind-mount'ов
+# (sva, uid 1000) — иначе нет доступа на запись в student-data/claude-config.
+# На Ubuntu 24.04+/26.04 базовый образ уже содержит пользователя `ubuntu` с uid 1000,
+# из-за чего useradd дал бы coder uid 1001. Поэтому сначала удаляем ubuntu и пиним uid 1000.
+# docker GID 1001 matches host — gives coder access to docker.sock without root.
+# workspace_users GID 2000 — shared access to ~/workspace across containers (Pi, Goose, MIMO).
+RUN userdel -r ubuntu 2>/dev/null || true && \
+    groupadd -g 2000 workspace_users 2>/dev/null || true && \
     groupmod -g 1001 docker && \
-    useradd -m -s /bin/bash -G sudo,docker,workspace_users coder \
+    useradd -m -u 1000 -s /bin/bash -G sudo,docker,workspace_users coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/coder
 
 USER coder
