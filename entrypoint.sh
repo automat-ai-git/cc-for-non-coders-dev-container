@@ -177,7 +177,7 @@ cat > /home/coder/CLAUDE.md << 'CLAUDEMD'
 ```bash
 ~/switch-model.sh subscription           # Claude по подписке
 ~/switch-model.sh glm                    # GLM (Z.AI) напрямую
-~/switch-model.sh glm-flash              # GLM-5.3-Flash (акционная лёгкая, контекст 1M)
+~/switch-model.sh glm-flash              # GLM гибрид: Opus/Sonnet на GLM, Haiku на Flash
 ~/switch-model.sh ollama qwen3:32b       # Ollama напрямую (v0.14+)
 ~/switch-model.sh lmstudio               # LM Studio напрямую (v0.4.1+)
 source ~/.claude/.env && claude          # применить и запустить
@@ -191,12 +191,13 @@ source ~/.claude/.env && claude          # применить и запусти�
 |-------|------------------|----------|
 | subscription | api.anthropic.com | Anthropic API |
 | glm | api.z.ai/api/anthropic | Anthropic-совместимый |
-| glm-flash | api.z.ai/api/anthropic | Anthropic-совместимый (модель glm-5.3-flash[1m]) |
+| glm-flash | api.z.ai/api/anthropic | Anthropic-совместимый (гибрид, см. ниже) |
 | ollama | ollama:11434 | Anthropic-совместимый |
 | lmstudio | $LMSTUDIO_URL (из .env) | Anthropic-совместимый |
 
-**glm-flash** — акционная лёгкая модель z.ai (сен 2026). Слабее GLM-5.3/5.2 — под лёгкие/дешёвые
-задачи, не как дефолт курса. В окне 18:00–04:00 МСК дешевле; через API — удвоенная квота, не ноль.
+**glm-flash** — гибрид: Opus=GLM-5.3, Sonnet=GLM-5.2, Haiku=glm-5.3-flash[1m]. Основная работа
+остаётся на полноценных GLM, а лёгкий фоновый Haiku-класс — на акционном Flash (сен 2026).
+Экономия акции — только на фоне; через API это удвоенная квота, не ноль.
 
 ## Проверить модели Ollama
 
@@ -234,16 +235,17 @@ CLAUDE_CODE_AUTO_COMPACT_WINDOW=
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
 
-# Профиль GLM-5.3-Flash — акционная модель z.ai (все три слота на Flash, контекст 1M).
-# Официальный ID модели для Anthropic-эндпоинта z.ai — glm-5.3-flash[1m] (суффикс [1m] обязателен).
+# Профиль glm-flash (гибрид B): Opus/Sonnet — полноценные GLM-5.3/5.2, Haiku — Flash.
+# Основная работа идёт на GLM, а лёгкий фоновый Haiku-класс — на акционном glm-5.3-flash[1m].
+# Официальный ID Flash для Anthropic-эндпоинта z.ai — glm-5.3-flash[1m] (суффикс [1m] обязателен).
 # Скобки [1m] в присваивании bash не разворачиваются (глоб в RHS не работает) — строка литеральная.
 cat > /home/coder/.claude/.env.glm-flash << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
 ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
-ANTHROPIC_DEFAULT_OPUS_MODEL=glm-5.3-flash[1m]
-ANTHROPIC_DEFAULT_SONNET_MODEL=glm-5.3-flash[1m]
+ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.3}
+ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_SONNET_MODEL:-GLM-5.2}
 ANTHROPIC_DEFAULT_HAIKU_MODEL=glm-5.3-flash[1m]
-CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000
+CLAUDE_CODE_AUTO_COMPACT_WINDOW=
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
 
@@ -281,12 +283,14 @@ case "${1:-}" in
   glm-flash)
     cp "$DIR/.env.glm-flash" "$ENV_FILE"
     echo ""
-    echo "  ✓ Режим: GLM-5.3-Flash (Z.AI) — акционная лёгкая модель"
-    echo "  Claude Code → api.z.ai/api/anthropic  (модель glm-5.3-flash[1m], контекст 1M)"
+    echo "  ✓ Режим: GLM гибрид (Z.AI) — Opus/Sonnet на GLM-5.3/5.2, Haiku на Flash"
+    echo "  Claude Code → api.z.ai/api/anthropic"
     echo ""
-    echo "  ⚠ Flash СЛАБЕЕ GLM-5.3/5.2 — под лёгкие/дешёвые задачи, не как дефолт курса."
-    echo "    Акция (сен 2026): дешевле в окне 18:00–04:00 МСК. Через API — удвоенная квота, НЕ ноль"
-    echo "    (полный ноль только через ZCode). Проверяй расход квоты во время окна."
+    echo "  Соответствие слотов:"
+    grep -E "OPUS_MODEL|SONNET_MODEL|HAIKU_MODEL" "$ENV_FILE" | sed 's/^/    /'
+    echo ""
+    echo "  ⚠ Flash стоит только на Haiku (фон). Основная работа (Opus/Sonnet) — платная GLM."
+    echo "    Акция (сен 2026, окно 18:00–04:00 МСК) сэкономит лишь на фоне; через API — не ноль."
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
@@ -336,7 +340,7 @@ EOF
     echo "  Использование:"
     echo "    ~/switch-model.sh subscription          — Claude по подписке"
     echo "    ~/switch-model.sh glm                   — GLM (Z.AI) напрямую"
-    echo "    ~/switch-model.sh glm-flash             — GLM-5.3-Flash (акционная лёгкая)"
+    echo "    ~/switch-model.sh glm-flash             — GLM гибрид (Haiku на акционном Flash)"
     echo "    ~/switch-model.sh ollama <модель>        — Ollama напрямую"
     echo "    ~/switch-model.sh lmstudio [модель]       — LM Studio напрямую"
     echo ""
