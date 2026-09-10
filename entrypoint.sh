@@ -177,6 +177,7 @@ cat > /home/coder/CLAUDE.md << 'CLAUDEMD'
 ```bash
 ~/switch-model.sh subscription           # Claude по подписке
 ~/switch-model.sh glm                    # GLM (Z.AI) напрямую
+~/switch-model.sh glm-flash              # GLM-5.3-Flash (акционная лёгкая, контекст 1M)
 ~/switch-model.sh ollama qwen3:32b       # Ollama напрямую (v0.14+)
 ~/switch-model.sh lmstudio               # LM Studio напрямую (v0.4.1+)
 source ~/.claude/.env && claude          # применить и запустить
@@ -190,8 +191,12 @@ source ~/.claude/.env && claude          # применить и запусти�
 |-------|------------------|----------|
 | subscription | api.anthropic.com | Anthropic API |
 | glm | api.z.ai/api/anthropic | Anthropic-совместимый |
+| glm-flash | api.z.ai/api/anthropic | Anthropic-совместимый (модель glm-5.3-flash[1m]) |
 | ollama | ollama:11434 | Anthropic-совместимый |
 | lmstudio | $LMSTUDIO_URL (из .env) | Anthropic-совместимый |
+
+**glm-flash** — акционная лёгкая модель z.ai (сен 2026). Слабее GLM-5.3/5.2 — под лёгкие/дешёвые
+задачи, не как дефолт курса. В окне 18:00–04:00 МСК дешевле; через API — удвоенная квота, не ноль.
 
 ## Проверить модели Ollama
 
@@ -229,6 +234,19 @@ CLAUDE_CODE_AUTO_COMPACT_WINDOW=
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
 EOF
 
+# Профиль GLM-5.3-Flash — акционная модель z.ai (все три слота на Flash, контекст 1M).
+# Официальный ID модели для Anthropic-эндпоинта z.ai — glm-5.3-flash[1m] (суффикс [1m] обязателен).
+# Скобки [1m] в присваивании bash не разворачиваются (глоб в RHS не работает) — строка литеральная.
+cat > /home/coder/.claude/.env.glm-flash << EOF
+ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
+ANTHROPIC_DEFAULT_OPUS_MODEL=glm-5.3-flash[1m]
+ANTHROPIC_DEFAULT_SONNET_MODEL=glm-5.3-flash[1m]
+ANTHROPIC_DEFAULT_HAIKU_MODEL=glm-5.3-flash[1m]
+CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000
+API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
+EOF
+
 cat > /home/coder/switch-model.sh << 'SWITCH'
 #!/usr/bin/env bash
 ENV_FILE="/home/coder/.claude/.env"
@@ -256,6 +274,19 @@ case "${1:-}" in
     echo ""
     echo "  Текущий конфиг:"
     grep -E "BASE_URL|MODEL" "$ENV_FILE" | sed 's/^/    /'
+    echo ""
+    echo "  Применить: source ~/.claude/.env && claude"
+    echo ""
+    ;;
+  glm-flash)
+    cp "$DIR/.env.glm-flash" "$ENV_FILE"
+    echo ""
+    echo "  ✓ Режим: GLM-5.3-Flash (Z.AI) — акционная лёгкая модель"
+    echo "  Claude Code → api.z.ai/api/anthropic  (модель glm-5.3-flash[1m], контекст 1M)"
+    echo ""
+    echo "  ⚠ Flash СЛАБЕЕ GLM-5.3/5.2 — под лёгкие/дешёвые задачи, не как дефолт курса."
+    echo "    Акция (сен 2026): дешевле в окне 18:00–04:00 МСК. Через API — удвоенная квота, НЕ ноль"
+    echo "    (полный ноль только через ZCode). Проверяй расход квоты во время окна."
     echo ""
     echo "  Применить: source ~/.claude/.env && claude"
     echo ""
@@ -305,6 +336,7 @@ EOF
     echo "  Использование:"
     echo "    ~/switch-model.sh subscription          — Claude по подписке"
     echo "    ~/switch-model.sh glm                   — GLM (Z.AI) напрямую"
+    echo "    ~/switch-model.sh glm-flash             — GLM-5.3-Flash (акционная лёгкая)"
     echo "    ~/switch-model.sh ollama <модель>        — Ollama напрямую"
     echo "    ~/switch-model.sh lmstudio [модель]       — LM Studio напрямую"
     echo ""
@@ -340,7 +372,7 @@ echo -e "  Запустить Claude Code:  \033[1;32mclaude\033[0m"
 echo -e "  Первое демо:            \033[0;33mcd sessions/01-setup/demo/financial-dashboard\033[0m"
 echo -e "  Файловый менеджер:      \033[0;33m/files/\033[0m в адресной строке"
 echo -e "  Переключить API-ключ:   \033[0;33m~/switch-api-key.sh [primary|backup]\033[0m"
-echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|ollama|lmstudio]\033[0m"
+echo -e "  Переключить режим:      \033[0;33m~/switch-model.sh [subscription|glm|glm-flash|ollama|lmstudio]\033[0m"
 echo -e "  Применить переключение: \033[0;33msource ~/.claude/.env && claude\033[0m"
 echo ""
 ENVLOAD
