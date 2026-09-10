@@ -12,7 +12,7 @@
 ```bash
 ~/switch-model.sh subscription           # Claude по подписке
 ~/switch-model.sh glm                    # GLM (Z.AI) напрямую
-~/switch-model.sh glm-flash              # GLM гибрид: Opus/Sonnet на GLM, Haiku на Flash
+~/switch-model.sh glm-flash              # GLM гибрид: Sonnet на Flash, Opus на GLM-5.3, Haiku на GLM-5.2
 ~/switch-model.sh ollama qwen3:32b       # Ollama напрямую (v0.14+)
 ~/switch-model.sh lmstudio               # LM Studio напрямую (v0.4.1+)
 source ~/.claude/.env && claude          # применить и запустить
