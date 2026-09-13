@@ -25,7 +25,10 @@ services:
       - GLM_HAIKU_MODEL=${GLM_HAIKU_MODEL:-GLM-4.7}
       - API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
       - ANTHROPIC_AUTH_TOKEN_BACKUP=${GLM_API_KEY_BACKUP:-}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}
+      # [ЛЕГАСИ] OLLAMA_MODEL больше не используется — модель задаётся аргументом
+      # `~/switch-model.sh ollama <модель>`. Осталось от старой схемы с LiteLLM.
+      # Оставлено закомментированным для истории.
+      # - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen36-pro-128k:latest}
       - LMSTUDIO_URL=${LMSTUDIO_URL:-http://lmstudio:8080}
       - SEARXNG_URL=${SEARXNG_URL:-}
       - PLANE_API_KEY=${PLANE_API_KEY:-}
