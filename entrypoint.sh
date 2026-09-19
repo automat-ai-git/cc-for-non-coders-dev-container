@@ -195,7 +195,7 @@ source ~/.claude/.env && claude          # применить и запусти�
 | ollama | ollama:11434 | Anthropic-совместимый |
 | lmstudio | $LMSTUDIO_URL (из .env) | Anthropic-совместимый |
 
-**glm-flash** — гибрид: Sonnet (рабочий по умолчанию)=glm-5.3-flash[1m], Opus=GLM-5.3, Haiku=GLM-5.2.
+**glm-flash** — гибрид: Sonnet (рабочий по умолчанию)=GLM-5.3-Flash, Opus=GLM-5.3, Haiku=GLM-5.2.
 Основная работа сессии идёт на акционном Flash; тяжёлое переключай на Opus через /model. Flash слабее
 GLM; акция (сен 2026, окно 18:00–04:00 МСК) через API — удвоенная квота, не ноль.
 
