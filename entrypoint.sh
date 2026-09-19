@@ -237,14 +237,15 @@ EOF
 
 # Профиль glm-flash (гибрид): Sonnet (рабочий по умолчанию) — на акционном Flash,
 # Opus — полноценная GLM-5.3 (для тяжёлого через /model), Haiku (фон) — GLM-5.2.
-# Так ОСНОВНАЯ работа сессии идёт через акционный glm-5.3-flash[1m].
-# Официальный ID Flash для Anthropic-эндпоинта z.ai — glm-5.3-flash[1m] (суффикс [1m] обязателен).
-# Скобки [1m] в присваивании bash не разворачиваются (глоб в RHS не работает) — строка литеральная.
+# Так ОСНОВНАЯ работа сессии идёт через акционный GLM-5.3-Flash.
+# ВАЖНО: код модели для API z.ai — именно "GLM-5.3-Flash" (без суффикса). Вариант с
+# [1m] из веб-доков API НЕ принимает: возвращает "Unknown Model" (code 1211) —
+# [1m] это внутренняя пометка Claude Code, а не код API. Проверено запросом к api.z.ai.
 cat > /home/coder/.claude/.env.glm-flash << EOF
 ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
 ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
 ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_OPUS_MODEL:-GLM-5.3}
-ANTHROPIC_DEFAULT_SONNET_MODEL=glm-5.3-flash[1m]
+ANTHROPIC_DEFAULT_SONNET_MODEL=GLM-5.3-Flash
 ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_SONNET_MODEL:-GLM-5.2}
 CLAUDE_CODE_AUTO_COMPACT_WINDOW=
 API_TIMEOUT_MS=${API_TIMEOUT_MS:-3000000}
