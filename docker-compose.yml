@@ -17,6 +17,7 @@ services:
       # порождать sibling-контейнеры — агенту нужен host-путь для трансляции
       # bind-маунтов (их интерпретирует хостовый демон, не ФС контейнера).
       - HOST_HOME=${HOST_HOME}
+      - TG_DAEMON_SOCKET=/tmp/tg-socket/tg-cli.sock
       - PASSWORD=${PASSWORD:-student-2026}
       - ANTHROPIC_AUTH_TOKEN=${GLM_API_KEY:-}
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.z.ai/api/anthropic}
@@ -46,6 +47,7 @@ services:
       - ${HOST_HOME}/workspace:/home/coder/workspace
       - /var/run/docker.sock:/var/run/docker.sock
       - ${MEETING_DATA_DIR:-${HOST_HOME}/cc-for-non-coders-dev-container/meeting-data}:/meeting-data:ro
+      - tg_socket_data:/tmp/tg-socket   # общий Unix-сокет tg-cli daemon (volume tg-cli_tg_socket_data)
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -65,3 +67,8 @@ services:
 networks:
   localai_default:
     external: true
+
+volumes:
+  tg_socket_data:
+    external: true
+    name: tg-cli_tg_socket_data
